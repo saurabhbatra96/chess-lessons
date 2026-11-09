@@ -49,24 +49,9 @@ a:hover {
 }
 
 /* Masthead */
-.masthead__ears {
-  display: grid;
-  grid-template-columns: 130px 1fr 130px;
-  align-items: center;
-  gap: 12px;
-}
-
-.ear {
-  border: 1px solid var(--rule);
-  padding: 6px;
-  font-size: 12px;
-  line-height: 1.25;
-  text-align: center;
-}
-
 .masthead__title {
   display: block;
-  font: 400 clamp(38px, 5vw, 60px) / 1.05 var(--blackletter);
+  font: 400 clamp(40px, 6.4vw, 76px) / 1.05 var(--blackletter);
   text-align: center;
   text-decoration: none;
 }
@@ -78,11 +63,6 @@ a:hover {
 }
 
 /* Inner pages keep the board and its controls on screen. */
-.masthead--compact .masthead__ears {
-  grid-template-columns: 1fr;
-}
-
-.masthead--compact .ear,
 .masthead--compact .dateline {
   display: none;
 }
@@ -99,14 +79,12 @@ a:hover {
 }
 
 .dateline {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 10px;
+  margin: 10px 0 0;
   padding: 4px 0;
   border-top: 3px double var(--rule);
   border-bottom: 1px solid var(--rule);
   font-size: 14px;
+  text-align: center;
 }
 
 .nav {
@@ -252,8 +230,8 @@ h3 a {
   font-size: clamp(42px, 5.6vw, 66px);
 }
 
-.hero__art {
-  margin: 0;
+.lead .dek {
+  margin-bottom: 10px;
 }
 
 .lead__art {
@@ -264,96 +242,28 @@ h3 a {
   mix-blend-mode: multiply;
 }
 
-.hero__art figcaption {
-  margin-top: 5px;
-  font-size: 14px;
-  font-style: italic;
-}
-
 .facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 26px;
   margin: 0 0 18px;
-  padding: 8px 0;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  list-style: none;
-}
-
-.facts strong {
-  font: 900 24px var(--display);
-}
-
-.intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 40px;
-  margin-top: 30px;
-  padding-top: 18px;
-  border-top: 3px double var(--rule);
-}
-
-.rail__head {
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--rule);
-  font-size: 22px;
-}
-
-.sample__lede {
-  margin: 10px 0 0;
-  font-style: italic;
+  font-weight: 700;
 }
 
 .sample .inline-puzzle {
-  margin: 12px auto 0;
+  margin: 0 auto;
+}
+
+/* The home page shows the board alone; typed moves and sourcing stay in the course itself. */
+.sample .puzzle__typed,
+.sample .puzzle__meta {
+  display: none;
 }
 
 .sample__after {
   margin: 12px auto 0;
-  max-width: 440px;
   text-align: center;
 }
 
 .sample__after[hidden] {
   display: none;
-}
-
-.steps {
-  margin: 12px 0;
-  padding-left: 24px;
-}
-
-.steps li {
-  margin-bottom: 8px;
-}
-
-.how__note {
-  margin: 0 0 22px;
-  color: var(--ink-soft);
-  font-size: 16px;
-  font-style: italic;
-}
-
-.plays {
-  margin: 12px 0 0;
-}
-
-.plays dt {
-  color: var(--red);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.plays dd {
-  margin: 0 0 10px;
-}
-
-.more {
-  display: inline-block;
-  font-weight: 700;
 }
 
 .desks {
@@ -1003,23 +913,6 @@ h3 a {
 }
 
 @media (max-width: 760px) {
-  .masthead__ears {
-    grid-template-columns: 1fr;
-  }
-
-  .ear {
-    display: none;
-  }
-
-  .dateline span:first-child,
-  .dateline span:last-child {
-    display: none;
-  }
-
-  .dateline {
-    justify-content: center;
-  }
-
   .nav {
     gap: 2px 16px;
     font-size: 13px;
@@ -1031,8 +924,7 @@ h3 a {
     border-left: 0;
   }
 
-  .hero,
-  .intro {
+  .hero {
     grid-template-columns: minmax(0, 1fr);
   }
 

@@ -56,19 +56,10 @@ function shell(compact: boolean): HTMLElement {
     : '';
   app.innerHTML = `
     <header class="masthead${compact ? ' masthead--compact' : ''}">
-      <div class="masthead__ears">
-        <span class="ear">Checks, Captures<br>&amp; Threats</span>
-        <a class="masthead__title" href="#/">${
-          artImage('masthead', 'The Washington Square Courier', 'masthead__art') ||
-          'The Washington Square Courier'
-        }</a>
-        <span class="ear ear--right">Late City Edition<br>Price: One Tempo</span>
-      </div>
-      <div class="dateline">
-        <span>Vol. I, No. 1</span>
-        <span>New York, ${esc(dateline)}</span>
-        <span>Rated 1000&ndash;1500</span>
-      </div>
+      <a class="masthead__title" href="#/">${
+        artImage('masthead', 'The Madras Mate', 'masthead__art') || 'The Madras Mate'
+      }</a>
+      <p class="dateline">New York Edition &middot; ${esc(dateline)}</p>
       <nav class="nav" aria-label="Sections">
         <a href="#/">Front Page</a>
         ${desks.map((d) => `<a href="#/section/${d.id}">${esc(d.title)}</a>`).join('')}
@@ -142,7 +133,7 @@ function mountSamplePuzzle(token: number): void {
       if (!puzzle) throw new Error('Sample puzzle not found');
       // A visitor trying the sample has not started the course, so nothing is recorded.
       mountPuzzle(host, puzzle, {
-        prompt: 'White has just played Bf4. Find the move that wins a piece.',
+        prompt: 'Find the move that wins a piece.',
         onResult: () => {
           after.hidden = false;
         },
@@ -159,48 +150,18 @@ function frontPage(page: HTMLElement, token: number): void {
     ${hasStarted() ? welcomeBack() : ''}
     <section class="hero">
       <div class="lead">
-        <p class="kicker">A free chess course for players rated 1000&ndash;1500</p>
         <h1>Back at the Board? Start Here.</h1>
-        <p class="dek">Short articles, graded puzzles and a complete opening repertoire, set in the pages of an old New York newspaper.</p>
-        <ul class="facts">
-          <li><strong>${allLessons.length}</strong> lessons</li>
-          <li><strong>${puzzleCount(allLessons).toLocaleString('en-US')}</strong> graded puzzles</li>
-          <li><strong>Free</strong> with no account</li>
-        </ul>
-        <p class="cta">
-          <a class="button" href="${lessonLink(first)}">Start lesson one</a>
-          <a class="button button--plain" href="#/contents">Browse all lessons</a>
-        </p>
+        <p class="dek">A free chess course for players rated 1000&ndash;1500.</p>
+        <p class="facts">${allLessons.length} lessons &middot; ${puzzleCount(allLessons).toLocaleString('en-US')} graded puzzles &middot; no account</p>
+        <p class="cta"><a class="button" href="${lessonLink(first)}">Start lesson one</a></p>
       </div>
-      <figure class="hero__art">
-        ${artImage('front-lead', 'Two men, one in a turban and long buttoned coat, study a carved Indian chess set at a stone table in Washington Square Park', 'lead__art')}
-        <figcaption>A carved Indian set, elephants and all, at the stone tables in Washington Square. The game itself began in India as chaturanga.</figcaption>
-      </figure>
+      ${artImage('front-lead', 'Two men, one in a turban and long buttoned coat, study a carved Indian chess set at a stone table in Washington Square Park', 'lead__art')}
     </section>
-    <div class="intro">
-      <section class="sample">
-        <h2 class="rail__head">The Chess Column</h2>
-        <p class="sample__lede">Try one now. This is how every puzzle in the course works.</p>
-        <div id="sample-puzzle" class="inline-puzzle"></div>
-        <p id="sample-after" class="sample__after" hidden>That was a fork, rated about 1000.
-          <a href="${lessonLink(findLesson(SAMPLE_PUZZLE.slug) as Lesson)}">The lesson on forks</a> explains the idea and is followed by ${PUZZLES_PER_LESSON} more.</p>
-      </section>
-      <aside class="how">
-        <h2 class="rail__head">How It Works</h2>
-        <ol class="steps">
-          <li><strong>Read.</strong> Each lesson is a short article with diagrams and exercises set into the text.</li>
-          <li><strong>Solve.</strong> Most lessons end with ${PUZZLES_PER_LESSON} puzzles, rated from 900 to 1800 and matched to your level.</li>
-          <li><strong>Review.</strong> Anything you miss comes back after one, three and seven days.</li>
-        </ol>
-        <p class="how__note">Your progress stays in this browser, and you can save a copy to move it to another device.</p>
-        <h2 class="rail__head">The Repertoire</h2>
-        <dl class="plays">
-          <dt>As White</dt><dd>The Vienna and f4 system, with the f-pawn going forward against every reply to 1.e4.</dd>
-          <dt>As Black</dt><dd>The French Defense against 1.e4 and the Queen's Gambit Declined against 1.d4.</dd>
-        </dl>
-        <a class="more" href="#/section/openings">See the full repertoire</a>
-      </aside>
-    </div>
+    <h2 class="band-head">The Chess Column</h2>
+    <section class="sample">
+      <div id="sample-puzzle" class="inline-puzzle"></div>
+      <p id="sample-after" class="sample__after" hidden>That was a fork. <a href="${lessonLink(findLesson(SAMPLE_PUZZLE.slug) as Lesson)}">Learn the idea</a>.</p>
+    </section>
     <h2 class="band-head">Inside the Paper</h2>
     <div class="desks">${desks.map(deskCard).join('')}</div>`;
   mountSamplePuzzle(token);
@@ -551,7 +512,7 @@ function progressPage(page: HTMLElement): void {
   document.getElementById('export')?.addEventListener('click', () => {
     const link = document.createElement('a');
     link.href = URL.createObjectURL(new Blob([exportProgress()], { type: 'application/json' }));
-    link.download = 'courier-progress.json';
+    link.download = 'chess-course-progress.json';
     link.click();
     URL.revokeObjectURL(link.href);
   });
@@ -576,7 +537,7 @@ function colophon(page: HTMLElement): void {
       <p><strong>Classic games</strong> are taken from the player collections at <a href="https://www.pgnmentor.com/files.html">PGN Mentor</a>. Opening names follow the open <a href="https://github.com/lichess-org/chess-openings">Lichess opening list</a>.</p>
       <p><strong>Illustrations</strong> were generated with Midjourney. The photographs are invented scenes, not records of real people or events.</p>
       <p><strong>Move rules</strong> are by <a href="https://github.com/jhlywa/chess.js">chess.js</a>, BSD licence.</p>
-      <p>The <em>Courier</em> is an invented newspaper and has no connection with any real publication.</p>
+      <p><strong>The name</strong> plays on <em>The Madras Mail</em>, an evening daily founded in 1868 that closed in the early 1980s. Madras, now Chennai, has become India's chess capital. This site is an independent tribute with no connection to that paper.</p>
     </div>`;
 }
 

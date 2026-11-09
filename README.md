@@ -1,4 +1,4 @@
-# The Washington Square Courier
+# The Madras Mate
 
 A chess course in newspaper form: short articles and graded puzzles for players rated roughly 1000 to 1500. It is a static site with no server or accounts, and it is built for GitHub Pages.
 

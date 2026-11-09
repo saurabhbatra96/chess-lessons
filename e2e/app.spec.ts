@@ -90,7 +90,7 @@ test.afterEach(() => {
 
 test('front page and contents show the course', async ({ page }, info) => {
   await page.goto('./');
-  await expect(page.locator('.masthead__title')).toContainText('Washington Square Courier');
+  await expect(page.locator('.masthead__title')).toHaveText('The Madras Mate');
   await expect(page.locator('.lead h1')).toHaveText('Back at the Board? Start Here.');
   await expect(page.locator('.facts')).toContainText(`${slugs.length} lessons`);
   await expect(page.locator('.facts')).toContainText('2,380 graded puzzles');

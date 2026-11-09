@@ -35,7 +35,7 @@
     {
       "id": "tactics",
       "title": "Tactics",
-      "dek": "Twelve lessons on the motifs that decide club games, each followed by a graded set of puzzles.",
+      "dek": "The motifs that decide club games.",
       "sections": [
         "tactics"
       ],
@@ -45,7 +45,7 @@
     {
       "id": "middlegame",
       "title": "Middlegame",
-      "dek": "What to do when there is nothing to calculate: plans, piece activity, squares and pawn structures.",
+      "dek": "What to do when there is nothing to calculate.",
       "sections": [
         "strategy",
         "positional"
@@ -56,7 +56,7 @@
     {
       "id": "openings",
       "title": "Openings",
-      "dek": "A repertoire for both sides: the Vienna and f4 system as White, the French and the Queen's Gambit Declined as Black, and a tour of the rest.",
+      "dek": "The Vienna as White. The French and Queen's Gambit Declined as Black.",
       "sections": [
         "white-vienna",
         "black-french",
@@ -79,7 +79,7 @@
     {
       "id": "classics",
       "title": "Classics",
-      "dek": "Famous games and model games for your openings. Sit in the master's chair and score yourself against the game.",
+      "dek": "Guess the moves of famous games.",
       "sections": [
         "classics"
       ],
