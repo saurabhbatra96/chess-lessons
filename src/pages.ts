@@ -20,6 +20,7 @@ import type { Lesson, Puzzle, Section } from './types';
 const app = document.getElementById('app') as HTMLElement;
 const EXAM_PER_LESSON = 2;
 const ARCHIVE_FEN = 'rnb1kb1r/pp3ppp/2p5/4q3/4n3/3Q4/PPPB1PPP/2KR1BNR w kq - 0 9';
+const PAPER_WASH = 'rgba(239, 230, 210, 0.66)';
 let renderToken = 0;
 
 const dateline = new Date().toLocaleDateString('en-US', {
@@ -92,7 +93,7 @@ function frontPage(page: HTMLElement): void {
         <p class="kicker">Tactics &middot; Lesson ${index} of ${tactics.lessons.length}</p>
         <h1><a href="${lessonLink(lead)}">${esc(lead.title)}</a></h1>
         <p class="dek">${esc(lead.dek)}</p>
-        ${artImage('front-lead', 'Chess players at the park tables', 'lead__art')}
+        ${artImage('front-lead', 'Two men bent over a chessboard at a stone table in Washington Square Park', 'lead__art')}
         <p class="lead__body">${
           started
             ? 'Your place is held. Read the lesson, then work the graded puzzles that follow it.'
@@ -154,7 +155,7 @@ function contents(page: HTMLElement): void {
 function sectionPage(page: HTMLElement): void {
   const { read, counts, bestExam } = getProgress();
   page.innerHTML = `
-    ${artImage('section-tactics', 'An engraving of a chess combination', 'section__art')}
+    ${artImage('section-tactics', 'An engraving of a knight rearing over fallen chess pieces', 'section__art')}
     <p class="kicker">${esc(tactics.kicker)}</p>
     <h1 class="section-title">${esc(tactics.title)}</h1>
     <p class="dek">${esc(tactics.dek)}</p>
@@ -388,7 +389,8 @@ export async function render(): Promise<void> {
   const [, route, arg] = location.hash.replace(/^#/, '').split('/');
   const page = shell(Boolean(route));
   const paper = artUrl('paper-texture');
-  if (paper) document.body.style.backgroundImage = `url("${paper}")`;
+  // The wash keeps the grain but stops folds banding and specks reading as punctuation.
+  if (paper) document.body.style.backgroundImage = `linear-gradient(${PAPER_WASH}, ${PAPER_WASH}), url("${paper}")`;
   window.scrollTo(0, 0);
 
   try {

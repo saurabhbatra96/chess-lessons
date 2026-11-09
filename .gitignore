@@ -3,3 +3,5 @@ dist/
 .cache/
 test-results/
 playwright-report/
+.DS_Store
+art/*.png

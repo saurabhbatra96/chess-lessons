@@ -92,7 +92,10 @@ test('front page and contents show the course', async ({ page }, info) => {
   await page.goto('./');
   await expect(page.locator('.masthead__title')).toContainText('Washington Square Courier');
   await expect(page.locator('.lead h1')).toHaveText('How to Solve');
-  await expect(page.locator('.lead__diagram .board')).toBeVisible();
+  const art = page.locator('.lead__art');
+  await expect(art).toBeVisible();
+  await expect.poll(() => art.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  expect(await page.evaluate(() => document.body.style.backgroundImage)).toContain('paper-texture');
   await page.evaluate(() => document.fonts.ready);
   expect(await page.evaluate(() => document.fonts.check('40px UnifrakturMaguntia'))).toBe(true);
   await page.waitForTimeout(400);
