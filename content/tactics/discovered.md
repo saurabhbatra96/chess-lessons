@@ -4,7 +4,7 @@ When the unmasked piece gives check, the piece that moved can attack whatever it
 
 ```board
 fen: 4k3/2q2ppp/8/8/8/4N3/5PPP/4R1K1 w - - 0 1
-caption: White to play. Any knight move uncovers check from the rook. Only one of them also hits the queen.
+caption: White to move. Any knight move uncovers check from the rook. Only one of them also hits the queen.
 best: e3d5
 arrows: e1e8 e3d5 d5c7
 ```
@@ -17,7 +17,7 @@ If the moved piece also gives check, that is double check, and it is the most fo
 
 ```board
 fen: rnb1kb1r/pp3ppp/2p5/4q3/4n3/3Q4/PPPB1PPP/2KR1BNR w kq - 0 9
-caption: Réti v. Tartakower, Vienna 1910. White to play and mate in three, beginning with a queen sacrifice.
+caption: Réti v. Tartakower, Vienna 1910. White to move and mate in three, beginning with a queen sacrifice.
 best: d3d8
 arrows: d3d8
 ```
@@ -30,10 +30,10 @@ Whenever one of your pieces stands directly between another of your long-range p
 
 ```puzzle
 id: 668Xn
-prompt: Your move. Which piece is standing in front of another?
+prompt: Which piece is standing in front of another?
 ```
 
 ```puzzle
 id: c93hf
-prompt: Your move. Two checks at once leave only one kind of reply.
+prompt: Two checks at once leave only one kind of reply.
 ```

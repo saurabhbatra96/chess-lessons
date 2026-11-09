@@ -28,14 +28,14 @@ Lessons are Markdown files in `content/tactics/`, listed in `content/course.json
 ````markdown
 ```board
 fen: 6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1
-caption: White to play and mate at once.
+caption: White to move and mate at once.
 best: d1d8
 arrows: d1d8
 ```
 
 ```puzzle
 id: uRxw7
-prompt: Your move. Look for the open file.
+prompt: Look for the open file.
 ```
 ````
 

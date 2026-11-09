@@ -14,7 +14,7 @@ A pinned piece cannot step away from an attack, so the natural reply is to attac
 
 ```board
 fen: 4k3/ppp3pp/5p2/4b3/8/5P2/PPP3PP/4R1K1 w - - 0 1
-caption: White to play. Taking on e5 with the rook only trades badly. There is a much stronger way to go after the bishop.
+caption: White to move. Taking on e5 with the rook only trades badly. There is a much stronger way to go after the bishop.
 best: f3f4
 arrows: e1e8 f3f4
 ```
@@ -27,10 +27,10 @@ Before relying on a pin, check whether it is truly binding. Relative pins can be
 
 ```puzzle
 id: iIJ6X
-prompt: Your move. Your queen is attacked. Look at what White's bishop on e2 is unable to do.
+prompt: Your queen is attacked. Look at what White's bishop on e2 is unable to do.
 ```
 
 ```puzzle
 id: eHFhj
-prompt: Your move. Bring the king out first, then look down the files.
+prompt: Bring the king out first, then look down the files.
 ```

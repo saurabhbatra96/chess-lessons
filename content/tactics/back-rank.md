@@ -2,7 +2,7 @@ Three pawns in front of a castled king make a fine shelter in the opening and a 
 
 ```board
 fen: 6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1
-caption: The picture to keep in mind. White to play and mate at once.
+caption: The picture to keep in mind. White to move and mate at once.
 best: d1d8
 arrows: d1d8
 ```
@@ -13,7 +13,7 @@ In real games, the back rank is usually guarded by a piece or two. The combinati
 
 ```board
 fen: 2r3k1/p1q2ppp/8/8/8/2Q5/5PPP/4R1K1 w - - 0 1
-caption: White to play. The rook on c8 defends the queen, and it also guards the back rank. It cannot do both.
+caption: White to move. The rook on c8 defends the queen, and it also guards the back rank. It cannot do both.
 best: c3c7
 arrows: c3c7 e1e8
 ```
@@ -28,10 +28,10 @@ Check your own back rank before every combination you launch, and your opponent'
 
 ```puzzle
 id: uRxw7
-prompt: Your move. Look for the open file.
+prompt: Look for the open file.
 ```
 
 ```puzzle
 id: jVy4o
-prompt: Your move. White's rook on a1 appears to have the back rank covered.
+prompt: White's rook on a1 appears to have the back rank covered.
 ```

@@ -150,6 +150,79 @@ test('next puzzle serves a different position', async ({ page }) => {
   expect((await currentPuzzle(page, 'pins')).id).not.toBe(first.id);
 });
 
+test('the status names the side to move and shows its cue', async ({ page }) => {
+  await page.goto('./#/train/forks');
+  await expect(page.locator('.board--live')).toBeVisible();
+  const puzzle = await currentPuzzle(page, 'forks');
+  const solver = solverOf(puzzle);
+  await expect(page.locator('.puzzle__status')).toHaveText(`${solver === 'w' ? 'White' : 'Black'} to move.`);
+  await expect(page.locator('.puzzle')).toHaveAttribute('data-side', solver);
+
+  await page.goto('./#/lesson/forks');
+  const inline = page.locator('[data-puzzle-id="fIbXc"]');
+  await expect(inline.locator('.puzzle__status')).toHaveText('Black to move.');
+  await expect(inline.locator('.puzzle__hint')).toContainText('White has just taken on g7');
+  await expect(page.locator('.puzzle__hint', { hasText: 'Your move' })).toHaveCount(0);
+});
+
+test('articles are set in a single column', async ({ page }) => {
+  await page.goto('./#/lesson/forks');
+  const columns = await page.locator('.prose').first().evaluate((el) => getComputedStyle(el).columnCount);
+  expect(columns).toBe('auto');
+});
+
+test('right-click draws arrows and circles', async ({ page }, info) => {
+  test.skip(info.project.name === 'phone', 'Right-click is desktop input.');
+  await page.goto('./#/train/forks');
+  await expect(page.locator('.board--live')).toBeVisible();
+  const puzzle = await currentPuzzle(page, 'forks');
+  const solver = solverOf(puzzle);
+  const board = page.locator('.puzzle .board');
+  const shapes = page.locator('.puzzle [data-shape]');
+  const a = await centre(board, 'c3', solver);
+  const b = await centre(board, 'e5', solver);
+
+  const rightDrag = async () => {
+    await page.mouse.move(a.x, a.y);
+    await page.mouse.down({ button: 'right' });
+    await page.mouse.move(b.x, b.y, { steps: 4 });
+    await page.mouse.up({ button: 'right' });
+  };
+
+  await rightDrag();
+  await expect(page.locator('.puzzle [data-shape="c3e5"]')).toHaveAttribute('data-color', 'green');
+
+  await page.keyboard.down('Shift');
+  await rightDrag();
+  await page.keyboard.up('Shift');
+  await expect(page.locator('.puzzle [data-shape="c3e5"]')).toHaveAttribute('data-color', 'red');
+  await expect(shapes).toHaveCount(1);
+
+  await page.mouse.click(b.x, b.y, { button: 'right' });
+  await expect(page.locator('.puzzle circle[data-shape="e5"]')).toBeVisible();
+  await expect(shapes).toHaveCount(2);
+  await page.mouse.click(b.x, b.y, { button: 'right' });
+  await expect(shapes).toHaveCount(1);
+
+  // Drawing is not a move: the puzzle is still waiting and nothing was recorded.
+  await expect(page.locator('.board--live')).toBeVisible();
+  await expect(page.locator('.puzzle__status')).toContainText('to move.');
+
+  const emptyFor = puzzle.moves[1].slice(0, 2) === 'a1' ? 'h8' : 'a1';
+  await tap(page, board, emptyFor, solver);
+  await expect(shapes).toHaveCount(0);
+
+  await page.goto('./#/lesson/forks');
+  const diagram = page.locator('.diagram .board').first();
+  const d1 = await centre(diagram, 'a1', 'w');
+  const d2 = await centre(diagram, 'a4', 'w');
+  await page.mouse.move(d1.x, d1.y);
+  await page.mouse.down({ button: 'right' });
+  await page.mouse.move(d2.x, d2.y, { steps: 3 });
+  await page.mouse.up({ button: 'right' });
+  await expect(page.locator('.diagram [data-shape="a1a4"]')).toHaveCount(1);
+});
+
 test('dragging a piece plays the move', async ({ page }, info) => {
   test.skip(info.project.name === 'phone', 'Mouse drag is desktop input; tapping is covered above.');
   await page.goto('./#/train/skewers');

@@ -126,7 +126,7 @@ function frontPage(page: HTMLElement): void {
     const board = new Board();
     board.setPosition(ARCHIVE_FEN);
     const caption = document.createElement('figcaption');
-    caption.textContent = 'From the archives: Réti v. Tartakower, Vienna 1910. White to play and mate in three.';
+    caption.textContent = 'From the archives: Réti v. Tartakower, Vienna 1910. White to move and mate in three.';
     figure.append(board.el, caption);
     (document.getElementById('lead-diagram') as HTMLElement).append(figure);
   }
@@ -371,7 +371,7 @@ function progressPage(page: HTMLElement): void {
 function colophon(page: HTMLElement): void {
   page.innerHTML = `
     <h1 class="section-title">Colophon</h1>
-    <div class="columns">
+    <div class="prose">
       <p><strong>Puzzles</strong> come from the <a href="https://database.lichess.org/#puzzles">Lichess puzzle database</a>, released under CC0. Their ratings are set by the players who solved them. Each puzzle links to its Lichess page.</p>
       <p><strong>Chess pieces</strong> are by <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces">Colin M. L. Burnett</a>, licensed <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a> and GPLv2+, recoloured here in ink and newsprint tones; the recoloured set is shared under the same terms.</p>
       <p><strong>Move rules</strong> are by <a href="https://github.com/jhlywa/chess.js">chess.js</a>, BSD licence.</p>

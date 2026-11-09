@@ -6,7 +6,7 @@ Before you can parry a threat, you must see it. So ask, after every opposing mov
 
 ```board
 fen: 3r2k1/5ppp/8/8/8/8/2R2PPP/6K1 w - - 0 1
-caption: White to play. Black threatens mate on d1. Grabbing activity on the seventh rank loses at once.
+caption: White to move. Black threatens mate on d1. Grabbing activity on the seventh rank loses at once.
 avoid: c2c7
 best: g2g3 h2h3 g1f1
 arrows: d8d1
@@ -28,10 +28,10 @@ When you have finished this set, sit the [final examination](#/exam): twenty-fou
 
 ```puzzle
 id: JdrK6
-prompt: Your move. Black is about to take everything. Find the saving idea.
+prompt: Black is about to take everything. Find the saving idea.
 ```
 
 ```puzzle
 id: bhXOG
-prompt: Your move. It is a race. Count carefully.
+prompt: It is a race. Count carefully.
 ```

@@ -36,6 +36,20 @@ export interface Arrow {
   to: string;
 }
 
+const SHAPE_COLORS = { green: '#3f6b3a', red: '#8a1c14', blue: '#2f5573', yellow: '#a67c1e' };
+type ShapeColor = keyof typeof SHAPE_COLORS;
+
+/** A user annotation: an arrow, or a circle when `from` equals `to`. */
+interface Shape extends Arrow {
+  color: ShapeColor;
+}
+
+/** Same modifier keys as Lichess: none is green, Shift red, Alt blue, both yellow. */
+function shapeColor(e: PointerEvent): ShapeColor {
+  if (e.shiftKey) return e.altKey ? 'yellow' : 'red';
+  return e.altKey ? 'blue' : 'green';
+}
+
 let boardCount = 0;
 
 export class Board {
@@ -46,6 +60,7 @@ export class Board {
   private readonly squares = svgEl('g');
   private readonly marks = svgEl('g');
   private readonly pieces = svgEl('g');
+  private readonly shapeLayer = svgEl('g', { class: 'board__shapes' });
   private readonly overlay = svgEl('g');
   private readonly hatchId = `hatch-${++boardCount}`;
   private readonly arrowId = `arrowhead-${boardCount}`;
@@ -56,11 +71,14 @@ export class Board {
   private game: Chess | null = null;
   private selected: Square | null = null;
   private dragging: SVGImageElement | null = null;
+  private shapes: Shape[] = [];
+  private drawing: Shape | null = null;
 
   constructor() {
     this.el.className = 'board';
-    this.svg.append(this.defs(), this.squares, this.marks, this.pieces, this.overlay);
+    this.svg.append(this.defs(), this.squares, this.marks, this.pieces, this.shapeLayer, this.overlay);
     this.el.append(this.svg);
+    this.svg.addEventListener('contextmenu', (e) => e.preventDefault());
     this.svg.addEventListener('pointerdown', (e) => this.pointerDown(e));
     this.svg.addEventListener('pointermove', (e) => this.pointerMove(e));
     this.svg.addEventListener('pointerup', (e) => this.pointerUp(e));
@@ -78,6 +96,7 @@ export class Board {
     this.lastMove = lastMove;
     this.arrows = arrows;
     this.selected = null;
+    this.clearShapes();
     this.redraw();
   }
 
@@ -124,17 +143,20 @@ export class Board {
       svgEl('rect', { width: 7, height: 7, fill: '#c9b892' }),
       svgEl('line', { x1: 0, y1: 0, x2: 0, y2: 7, stroke: '#6f5f43', 'stroke-width': 2.2 }),
     );
-    const marker = svgEl('marker', {
-      id: this.arrowId,
-      viewBox: '0 0 10 10',
-      refX: 7,
-      refY: 5,
-      markerWidth: 3.4,
-      markerHeight: 3.4,
-      orient: 'auto',
-    });
-    marker.append(svgEl('path', { d: 'M0 0 L10 5 L0 10 z', fill: '#8a1c14' }));
-    defs.append(pattern, marker);
+    defs.append(pattern);
+    for (const [name, fill] of Object.entries(SHAPE_COLORS)) {
+      const marker = svgEl('marker', {
+        id: `${this.arrowId}-${name}`,
+        viewBox: '0 0 10 10',
+        refX: 7,
+        refY: 5,
+        markerWidth: 3.4,
+        markerHeight: 3.4,
+        orient: 'auto',
+      });
+      marker.append(svgEl('path', { d: 'M0 0 L10 5 L0 10 z', fill }));
+      defs.append(marker);
+    }
     this.drawSquares();
     return defs;
   }
@@ -187,23 +209,64 @@ export class Board {
       const [x, y] = this.xy(target);
       this.marks.append(svgEl('circle', { cx: x + CELL / 2, cy: y + CELL / 2, r: 14, fill: '#8a1c14', opacity: 0.75 }));
     }
-    for (const { from, to } of this.arrows) {
-      const [x1, y1] = this.xy(from);
-      const [x2, y2] = this.xy(to);
-      this.marks.append(
-        svgEl('line', {
-          x1: x1 + CELL / 2,
-          y1: y1 + CELL / 2,
-          x2: x2 + CELL / 2,
-          y2: y2 + CELL / 2,
-          stroke: '#8a1c14',
-          'stroke-width': 12,
-          'stroke-linecap': 'round',
-          'marker-end': `url(#${this.arrowId})`,
-          opacity: 0.85,
-        }),
-      );
-    }
+    for (const { from, to } of this.arrows) this.marks.append(this.arrowLine(from, to, 'red'));
+  }
+
+  private arrowLine(from: string, to: string, color: ShapeColor): SVGLineElement {
+    const [x1, y1] = this.xy(from);
+    const [x2, y2] = this.xy(to);
+    return svgEl('line', {
+      x1: x1 + CELL / 2,
+      y1: y1 + CELL / 2,
+      x2: x2 + CELL / 2,
+      y2: y2 + CELL / 2,
+      stroke: SHAPE_COLORS[color],
+      'stroke-width': 12,
+      'stroke-linecap': 'round',
+      'marker-end': `url(#${this.arrowId}-${color})`,
+      opacity: 0.85,
+    });
+  }
+
+  private drawShapes(): void {
+    const shapes = this.drawing ? [...this.shapes, this.drawing] : this.shapes;
+    this.shapeLayer.replaceChildren(
+      ...shapes.map(({ from, to, color }) => {
+        const [x, y] = this.xy(from);
+        const el =
+          from === to
+            ? svgEl('circle', {
+                cx: x + CELL / 2,
+                cy: y + CELL / 2,
+                r: 43,
+                fill: 'none',
+                stroke: SHAPE_COLORS[color],
+                'stroke-width': 7,
+                opacity: 0.85,
+              })
+            : this.arrowLine(from, to, color);
+        el.setAttribute('data-shape', from === to ? from : from + to);
+        el.setAttribute('data-color', color);
+        return el;
+      }),
+    );
+  }
+
+  private clearShapes(): void {
+    this.shapes = [];
+    this.drawing = null;
+    this.drawShapes();
+  }
+
+  /** Adds the drawn shape; repeating it removes it, and a new colour replaces it. */
+  private finishShape(): void {
+    const shape = this.drawing as Shape;
+    this.drawing = null;
+    const at = this.shapes.findIndex((s) => s.from === shape.from && s.to === shape.to);
+    if (at < 0) this.shapes.push(shape);
+    else if (this.shapes[at].color === shape.color) this.shapes.splice(at, 1);
+    else this.shapes[at] = shape;
+    this.drawShapes();
   }
 
   private targets(square: Square): Square[] {
@@ -227,9 +290,19 @@ export class Board {
   }
 
   private pointerDown(e: PointerEvent): void {
-    if (!this.game) return;
     const square = this.squareAt(e);
     if (!square) return;
+    // Ctrl-click is how a Mac trackpad produces a right click.
+    if (e.button === 2 || (e.button === 0 && e.ctrlKey)) {
+      e.preventDefault();
+      this.drawing = { from: square, to: square, color: shapeColor(e) };
+      this.svg.setPointerCapture(e.pointerId);
+      this.drawShapes();
+      return;
+    }
+    if (e.button !== 0) return;
+    this.clearShapes();
+    if (!this.game) return;
     e.preventDefault();
 
     if (this.selected && this.targets(this.selected).includes(square)) {
@@ -250,6 +323,15 @@ export class Board {
   }
 
   private pointerMove(e: PointerEvent): void {
+    if (this.drawing) {
+      const to = this.squareAt(e) ?? this.drawing.to;
+      const color = shapeColor(e);
+      if (to !== this.drawing.to || color !== this.drawing.color) {
+        this.drawing = { ...this.drawing, to, color };
+        this.drawShapes();
+      }
+      return;
+    }
     if (!this.dragging || !this.selected) return;
     const [x, y] = this.svgPoint(e);
     const [x0, y0] = this.xy(this.selected);
@@ -257,6 +339,10 @@ export class Board {
   }
 
   private pointerUp(e: PointerEvent): void {
+    if (this.drawing) {
+      this.finishShape();
+      return;
+    }
     if (!this.dragging || !this.selected) return;
     const target = this.squareAt(e);
     const from = this.selected;
@@ -274,6 +360,8 @@ export class Board {
   private cancelDrag(): void {
     if (this.dragging) this.dragging.style.transform = '';
     this.dragging = null;
+    this.drawing = null;
+    this.drawShapes();
   }
 
   private complete(from: Square, to: Square): void {

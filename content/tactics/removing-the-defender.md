@@ -6,7 +6,7 @@ Simple exchanges are rarely neutral. If the piece you trade off happens to be th
 
 ```board
 fen: 6k1/5ppp/5n2/3b2B1/8/8/5PPP/3R2K1 w - - 0 1
-caption: White to play. The rook attacks the bishop, but the knight defends it. So deal with the knight.
+caption: White to move. The rook attacks the bishop, but the knight defends it. So deal with the knight.
 best: g5f6
 avoid: d1d5
 arrows: g5f6 d1d5
@@ -22,10 +22,10 @@ Make this a routine question in any sharp position: for each enemy piece, what e
 
 ```puzzle
 id: rVomM
-prompt: Your move. What is holding Black's position together?
+prompt: What is holding Black's position together?
 ```
 
 ```puzzle
 id: degWM
-prompt: Your move. Black's last move looks like a simple trade.
+prompt: Black's last move looks like a simple trade.
 ```

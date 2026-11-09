@@ -4,7 +4,7 @@ Before you choose a move, go through the forcing moves in order: **checks, captu
 
 ```board
 fen: r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4
-caption: White to play. The first check on the list is also a capture, and it ends the game.
+caption: White to move. The first check on the list is also a capture, and it ends the game.
 best: h5f7
 arrows: h5f7
 ```
@@ -17,7 +17,7 @@ The inventory finds your chances. A second inventory protects you from your own 
 
 ```board
 fen: 4r1k1/pQ3ppp/8/4q3/8/8/5PPP/3R2K1 w - - 0 1
-caption: White to play. The a-pawn is free for the taking. Run the list for Black first.
+caption: White to move. The a-pawn is free for the taking. Run the list for Black first.
 avoid: b7a7
 best: h2h3 g2g3
 ```
@@ -30,10 +30,10 @@ Treat each puzzle as a real game position. Do not move until you have seen the l
 
 ```puzzle
 id: cgozN
-prompt: Your move. Begin with the checks.
+prompt: Begin with the checks.
 ```
 
 ```puzzle
 id: jOx16
-prompt: Your move. What can no longer escape?
+prompt: What can no longer escape?
 ```

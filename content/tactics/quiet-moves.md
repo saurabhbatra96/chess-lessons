@@ -2,7 +2,7 @@ We have spent ten lessons on forcing moves, and for good reason. Your list of ch
 
 ```board
 fen: r4rk1/pp3p1p/6p1/4B1Q1/8/8/PP3PKP/8 w - - 0 1
-caption: White to play and mate in two. There is no check available that helps.
+caption: White to move and mate in two. There is no check available that helps.
 best: g5f6
 arrows: g5f6 f6g7
 ```
@@ -23,10 +23,10 @@ When the forcing moves all fail, do not give up the search at once. Ask what you
 
 ```puzzle
 id: bZKFN
-prompt: Your move. One of your own pieces is in the way.
+prompt: One of your own pieces is in the way.
 ```
 
 ```puzzle
 id: ZQCHx
-prompt: Your move. Look for the check that the queen and rook make possible together.
+prompt: Look for the check that the queen and rook make possible together.
 ```

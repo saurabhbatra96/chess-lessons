@@ -38,7 +38,7 @@ Two bishops, crossing on diagonals, against a king castled long. Its namesake ga
 
 ```board
 fen: 2k1rb1r/ppp3pp/2n2q2/3B1b2/5P2/2P1BQ2/PP1N1P1P/2KR3R b - - 0 14
-caption: Schulder v. Boden, London 1853. Black to play and mate in two.
+caption: Schulder v. Boden, London 1853. Black to move and mate in two.
 best: f6c3
 arrows: f6c3
 ```
@@ -47,10 +47,10 @@ Boden played 14...Qxc3+ 15.bxc3 Ba3, and the two bishops cover every flight squa
 
 ```puzzle
 id: YPGC5
-prompt: Your move. Keep the knight in mind.
+prompt: Keep the knight in mind.
 ```
 
 ```puzzle
 id: uOZqs
-prompt: Your move. You have read how this one goes.
+prompt: You have read how this one goes.
 ```

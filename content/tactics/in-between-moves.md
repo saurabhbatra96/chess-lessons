@@ -4,7 +4,7 @@ An in-between move, or *zwischenzug*, is a move played before the expected reply
 
 ```board
 fen: 3q1rk1/2r2pp1/p3pn1p/Q6b/4P3/P2P1N1P/1P2BPP1/2R1R1K1 b - - 0 22
-caption: Black to play. White's queen has just captured a knight on a5, and only the rook on c7 stands between the two queens. Black seems simply to have lost a piece.
+caption: Black to move. White's queen has just captured a knight on a5, and only the rook on c7 stands between the two queens. Black seems simply to have lost a piece.
 best: c7c1
 arrows: c7c1
 ```
@@ -23,10 +23,10 @@ The same reasoning applies in reverse. When a trade sequence looks forced, it is
 
 ```puzzle
 id: XkgHV
-prompt: Your move. Your opponent has just captured on d4. The reply may not be the obvious one.
+prompt: Your opponent has just captured on d4. The reply may not be the obvious one.
 ```
 
 ```puzzle
 id: eOwWA
-prompt: Your move. White has taken a knight. Is there something better than regret?
+prompt: White has taken a knight. Is there something better than regret?
 ```

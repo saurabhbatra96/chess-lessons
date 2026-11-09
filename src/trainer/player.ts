@@ -29,6 +29,10 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
   const status = document.createElement('p');
   status.className = 'puzzle__status';
   status.setAttribute('role', 'status');
+  const hint = document.createElement('p');
+  hint.className = 'puzzle__hint';
+  hint.textContent = options.prompt ?? '';
+  hint.hidden = !options.prompt;
   const typed = document.createElement('form');
   typed.className = 'puzzle__typed';
   typed.innerHTML = `<label>Or write your move <input name="move" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Nf5"></label>`;
@@ -50,9 +54,14 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
   link.target = '_blank';
   link.rel = 'noopener';
   link.textContent = `Rated ${puzzle.rating} · No. ${puzzle.id}`;
-  meta.append(link);
+  const tip = document.createElement('span');
+  tip.className = 'puzzle__tip';
+  tip.textContent = ' · Right-click and drag to draw arrows';
+  meta.append(link, tip);
 
-  figure.append(board.el, status, typed, actions, meta);
+  const sideToMove = `${colorName(session.solver)} to move.`;
+  figure.dataset.side = session.solver;
+  figure.append(board.el, status, hint, typed, actions, meta);
   host.replaceChildren(figure);
 
   const say = (text: string, tone = '') => {
@@ -68,6 +77,8 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
 
   const finish = (text: string, tone: string) => {
     board.setInteractive(null);
+    delete figure.dataset.side;
+    hint.hidden = true;
     typed.hidden = true;
     reveal.hidden = true;
     next.hidden = !options.onNext;
@@ -98,7 +109,7 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
       finish(cleanRun ? 'Solved at the first attempt.' : 'Solved, with a stumble.', cleanRun ? 'right' : '');
       return;
     }
-    say('Correct. Keep going.', 'right');
+    say(`Correct. ${sideToMove}`, 'right');
     await pause();
     if (!host.isConnected) return;
     await board.animate(result.reply, session.fen);
@@ -146,7 +157,7 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
 
   board.setOrientation(session.solver);
   board.setPosition(puzzle.fen);
-  say(options.prompt ?? `${colorName(session.solver)} to play.`);
+  say(sideToMove);
 
   window.setTimeout(async () => {
     if (!host.isConnected) return;

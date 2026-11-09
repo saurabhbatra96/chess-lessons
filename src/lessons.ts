@@ -56,7 +56,7 @@ function inlinePuzzle(block: Record<string, string>, slug: string): HTMLElement 
   return holder;
 }
 
-/** Renders a lesson: prose runs become newspaper columns, split by full-width diagrams. */
+/** Renders a lesson: a single column of prose, broken up by diagrams and puzzles. */
 export function renderLesson(host: HTMLElement, slug: string, source: string): void {
   const tokens = marked.lexer(source);
   let prose: Token[] = [];
@@ -65,7 +65,7 @@ export function renderLesson(host: HTMLElement, slug: string, source: string): v
     if (!prose.length) return;
     const list = Object.assign(prose, { links: tokens.links }) as TokensList;
     const block = document.createElement('div');
-    block.className = 'columns';
+    block.className = 'prose';
     block.innerHTML = marked.parser(list);
     host.append(block);
     prose = [];

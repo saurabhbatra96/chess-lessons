@@ -2,7 +2,7 @@ A skewer is a pin turned inside out. The more valuable piece stands in front, it
 
 ```board
 fen: 8/1q6/8/3k4/8/8/7P/5BK1 w - - 0 1
-caption: White to play. King and queen share a diagonal, and the bishop can step onto it with check.
+caption: White to move. King and queen share a diagonal, and the bishop can step onto it with check.
 best: f1g2
 arrows: f1g2 g2d5
 ```
@@ -15,7 +15,7 @@ One skewer deserves memorising outright, because it decides rook endings. A whit
 
 ```board
 fen: R7/P4k2/8/8/8/8/r7/6K1 w - - 0 1
-caption: White to play. The rook seems tied to the pawn. Moving it along the back rank sets a trap.
+caption: White to move. The rook seems tied to the pawn. Moving it along the back rank sets a trap.
 best: a8h8
 arrows: a8h8
 ```
@@ -28,10 +28,10 @@ An x-ray is an attack or defence that passes through another piece. The classic 
 
 ```puzzle
 id: m8OJw
-prompt: Your move. Win something bigger than the pawn.
+prompt: Win something bigger than the pawn.
 ```
 
 ```puzzle
 id: hbrlp
-prompt: Your move. Count the attackers on the back rank, including the hidden one.
+prompt: Count the attackers on the back rank, including the hidden one.
 ```

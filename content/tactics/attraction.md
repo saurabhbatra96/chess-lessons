@@ -2,7 +2,7 @@ Attraction is the art of forcing an enemy piece onto a square where it will be h
 
 ```board
 fen: 6k1/6pp/1q6/4N3/3P4/8/6PP/5RK1 w - - 0 1
-caption: White to play. A knight check on d7 would hit the queen, if only the king stood on f8. So put it there.
+caption: White to move. A knight check on d7 would hit the queen, if only the king stood on f8. So put it there.
 best: f1f8
 arrows: f1f8 e5d7
 ```
@@ -17,7 +17,7 @@ Not every sacrifice is a forced one, and an opponent who takes unwisely may lose
 
 ```board
 fen: rn1qkbnr/ppp2p1p/3p2p1/4p3/2B1P1b1/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 0 5
-caption: White to play. The knight seems pinned to the queen. It moves anyway.
+caption: White to move. The knight seems pinned to the queen. It moves anyway.
 best: f3e5
 arrows: f3e5
 ```
@@ -30,10 +30,10 @@ Ask of each target: *which square would I like this piece to stand on?* Then ask
 
 ```puzzle
 id: j28jV
-prompt: Your move. Consider where you would like the black king to stand.
+prompt: Consider where you would like the black king to stand.
 ```
 
 ```puzzle
 id: n7rmY
-prompt: Your move. Be bold on the h-file.
+prompt: Be bold on the h-file.
 ```
