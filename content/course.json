@@ -1,0 +1,96 @@
+{
+  "bands": [
+    { "id": "warmup", "name": "Warm-up", "min": 900, "max": 1100 },
+    { "id": "club", "name": "Club", "min": 1100, "max": 1300 },
+    { "id": "solid", "name": "Solid", "min": 1300, "max": 1500 },
+    { "id": "strong", "name": "Strong", "min": 1500, "max": 1650 },
+    { "id": "stretch", "name": "Stretch", "min": 1650, "max": 1800 }
+  ],
+  "sections": [
+    {
+      "id": "tactics",
+      "title": "Tactics",
+      "kicker": "Section A",
+      "status": "published",
+      "dek": "Twelve lessons on the motifs that decide club games, each followed by a graded set of puzzles.",
+      "lessons": [
+        { "slug": "how-to-solve", "title": "How to Solve", "dek": "Checks, captures, threats, and then the question most players skip.", "themes": ["hangingPiece", "trappedPiece", "mateIn2"] },
+        { "slug": "forks", "title": "The Fork", "dek": "One piece, two targets, and a bill your opponent cannot pay in full.", "themes": ["fork"] },
+        { "slug": "pins", "title": "The Pin", "dek": "A piece that cannot move is a piece that is not really defending.", "themes": ["pin"] },
+        { "slug": "skewers", "title": "Skewers and X-Rays", "dek": "The pin turned inside out, and the attack that passes through a piece.", "themes": ["skewer", "xRayAttack"] },
+        { "slug": "discovered", "title": "Discovered Attacks", "dek": "Move one piece and unmask another: two threats for the price of a tempo.", "themes": ["discoveredAttack", "doubleCheck"] },
+        { "slug": "removing-the-defender", "title": "Removing the Defender", "dek": "When the target is guarded, go after the guard.", "themes": ["capturingDefender", "deflection"] },
+        { "slug": "attraction", "title": "Attraction and Decoys", "dek": "Offering material to drag a piece onto the wrong square.", "themes": ["attraction"] },
+        { "slug": "back-rank", "title": "The Back Rank", "dek": "Three unmoved pawns can be a coffin as easily as a shelter.", "themes": ["backRankMate"] },
+        { "slug": "mating-patterns", "title": "Mating Patterns", "dek": "Smothered, Arabian, Anastasia, Boden: pictures worth keeping in the head.", "themes": ["smotheredMate", "arabianMate", "anastasiaMate", "bodenMate", "doubleBishopMate", "hookMate", "dovetailMate"] },
+        { "slug": "in-between-moves", "title": "In-Between Moves", "dek": "The recapture is not compulsory. Look for something stronger first.", "themes": ["intermezzo"] },
+        { "slug": "quiet-moves", "title": "Quiet Moves and Clearance", "dek": "The hardest tactics to see are the ones that make no noise.", "themes": ["quietMove", "clearance", "interference"] },
+        { "slug": "defending", "title": "Defending, and a Final Examination", "dek": "Tactics work for both sides. Finding the saving move, then a mixed test.", "themes": ["defensiveMove"] }
+      ]
+    },
+    {
+      "id": "strategy",
+      "title": "Strategy",
+      "kicker": "Section B",
+      "status": "forthcoming",
+      "dek": "What to do when there is nothing to calculate.",
+      "planned": ["Making a plan", "Piece activity", "Attacking the king", "Trading the right pieces", "Converting advantages"]
+    },
+    {
+      "id": "positional",
+      "title": "Positional Understanding",
+      "kicker": "Section C",
+      "status": "forthcoming",
+      "dek": "Squares, structures, and the slow accumulation of small things.",
+      "planned": ["Weak squares and outposts", "Good and bad bishops", "Open files", "Prophylaxis", "Pawn structures: the IQP, the Carlsbad, the French chain"]
+    },
+    {
+      "id": "white-vienna",
+      "title": "White: The Vienna and f4 System",
+      "kicker": "Section D",
+      "status": "forthcoming",
+      "dek": "One attacking idea, carried across every reply to 1.e4.",
+      "planned": ["1.e4 e5 2.Nc3 and the Vienna Gambit", "The Grand Prix against the Sicilian", "Lines against the Caro-Kann", "Lines against the French"]
+    },
+    {
+      "id": "black-french",
+      "title": "Black: The French Defense",
+      "kicker": "Section E",
+      "status": "forthcoming",
+      "dek": "Concede space, keep the structure, and strike at the chain.",
+      "planned": ["The Advance", "The Exchange", "The Tarrasch", "The main 3.Nc3 lines"]
+    },
+    {
+      "id": "black-qgd",
+      "title": "Black: The Queen's Gambit Declined",
+      "kicker": "Section F",
+      "status": "forthcoming",
+      "dek": "French structures, carried over to meet 1.d4.",
+      "planned": ["Main lines against 1.d4", "Transpositions against 1.c4 and 1.Nf3", "The Carlsbad plans for Black"]
+    },
+    {
+      "id": "gallery",
+      "title": "The Opening Gallery",
+      "kicker": "Section G",
+      "status": "forthcoming",
+      "dek": "Short tours of everything else, so that nothing comes as a shock.",
+      "planned": ["Popular sidelines at club level", "The traps worth knowing", "Gambits to enjoy and gambits to refute"]
+    },
+    {
+      "id": "endgames",
+      "title": "Endgames",
+      "kicker": "Section H",
+      "status": "forthcoming",
+      "dek": "The cheapest rating points on the board.",
+      "planned": ["King and pawn endings", "The opposition", "Lucena and Philidor", "Basic rook endings", "Converting won positions"]
+    },
+    {
+      "id": "classics",
+      "title": "Guess-the-Move Classics",
+      "kicker": "Section I",
+      "status": "forthcoming",
+      "dek": "Sit in the master's chair and score yourself against the game.",
+      "planned": ["Annotated classics, move by move", "Model games for your openings"]
+    }
+  ]
+}

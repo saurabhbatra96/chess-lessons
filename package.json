@@ -1,0 +1,26 @@
+{
+  "name": "washington-square-courier",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "puzzles": "node scripts/build-puzzles.mjs",
+    "validate": "node scripts/validate-content.mjs",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "chess.js": "1.4.0",
+    "marked": "15.0.12"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.54.2",
+    "stockfish": "16.0.0",
+    "typescript": "5.8.3",
+    "vite": "6.3.5",
+    "vitest": "3.2.4"
+  }
+}
