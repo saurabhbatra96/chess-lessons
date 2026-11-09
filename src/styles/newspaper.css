@@ -66,7 +66,7 @@ a:hover {
 
 .masthead__title {
   display: block;
-  font: 400 clamp(38px, 7.6vw, 84px) / 1.05 var(--blackletter);
+  font: 400 clamp(38px, 5vw, 60px) / 1.05 var(--blackletter);
   text-align: center;
   text-decoration: none;
 }
@@ -123,6 +123,15 @@ a:hover {
 
 .nav a {
   text-decoration: none;
+}
+
+.nav__mine {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 26px;
+  padding-left: 26px;
+  border-left: 1px solid var(--hairline);
 }
 
 .page {
@@ -217,96 +226,370 @@ h3 a {
 }
 
 /* Front page */
-.front {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  gap: 28px;
-}
-
-.lead h1 {
-  font-size: clamp(46px, 8vw, 86px);
-}
-
-.lead__art,
-.section__art {
-  display: block;
-  width: 100%;
-  height: auto;
-  margin: 8px 0 14px;
+.welcome-back {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 18px;
+  margin-bottom: 20px;
+  padding: 8px 12px;
   border: 1px solid var(--rule);
 }
 
-.lead__body {
-  font-size: 20px;
+.welcome-back p {
+  margin: 0;
 }
 
-.rail {
-  padding-left: 28px;
-  border-left: 1px solid var(--rule);
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 32px;
+}
+
+.lead h1 {
+  font-size: clamp(42px, 5.6vw, 66px);
+}
+
+.hero__art {
+  margin: 0;
+}
+
+.lead__art {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  mix-blend-mode: multiply;
+}
+
+.hero__art figcaption {
+  margin-top: 5px;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 26px;
+  margin: 0 0 18px;
+  padding: 8px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  list-style: none;
+}
+
+.facts strong {
+  font: 900 24px var(--display);
+}
+
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 40px;
+  margin-top: 30px;
+  padding-top: 18px;
+  border-top: 3px double var(--rule);
 }
 
 .rail__head {
   padding-bottom: 6px;
   border-bottom: 1px solid var(--rule);
-  font-size: 20px;
-}
-
-.brief {
-  padding: 12px 0;
-  border-bottom: 1px solid var(--hairline);
-}
-
-.brief h3 {
   font-size: 22px;
 }
 
-.brief p {
-  margin: 5px 0 0;
-  font-size: 16px;
+.sample__lede {
+  margin: 10px 0 0;
+  font-style: italic;
 }
 
-.brief .kicker {
-  margin: 0 0 4px;
-  font-size: 12px;
+.sample .inline-puzzle {
+  margin: 12px auto 0;
 }
 
-.brief--muted h3 {
+.sample__after {
+  margin: 12px auto 0;
+  max-width: 440px;
+  text-align: center;
+}
+
+.sample__after[hidden] {
+  display: none;
+}
+
+.steps {
+  margin: 12px 0;
+  padding-left: 24px;
+}
+
+.steps li {
+  margin-bottom: 8px;
+}
+
+.how__note {
+  margin: 0 0 22px;
   color: var(--ink-soft);
+  font-size: 16px;
+  font-style: italic;
+}
+
+.plays {
+  margin: 12px 0 0;
+}
+
+.plays dt {
+  color: var(--red);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.plays dd {
+  margin: 0 0 10px;
 }
 
 .more {
   display: inline-block;
-  margin-top: 12px;
   font-weight: 700;
 }
 
-.briefs {
+.desks {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
-  gap: 0 24px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 26px 28px;
 }
 
-/* Contents */
-.toc {
-  padding: 18px 0;
+.desk-card {
+  grid-column: span 2;
+  padding-bottom: 8px;
+}
+
+.desk-card:nth-child(-n + 2) {
+  grid-column: span 3;
+}
+
+.desk-card h3 {
+  margin-top: 8px;
+  font-size: 28px;
+}
+
+.desk-card p {
+  margin: 4px 0 0;
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.desk-card .desk-card__count {
+  color: var(--red);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* Printed plates: the engraving's own paper has been removed, so the ink sits on the page. */
+.engraving {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 7 / 3;
+  object-fit: cover;
+  border: 1px solid var(--rule);
+  mix-blend-mode: multiply;
+}
+
+.engraving--piece {
+  width: 120px;
+  aspect-ratio: 1;
+  border: 0;
+}
+
+/* My Course */
+.resume {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px 24px;
+  margin-top: 14px;
+  padding: 14px 0;
+  border-top: 3px double var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.resume h2 {
+  font-size: 32px;
+}
+
+.resume__dek {
+  margin: 4px 0 0;
+  font-style: italic;
+}
+
+.resume .cta {
+  margin: 0;
+}
+
+.desk-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.desk-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 130px minmax(0, 2fr);
+  align-items: baseline;
+  gap: 2px 16px;
+  padding: 10px 0;
   border-bottom: 1px solid var(--hairline);
 }
 
-.toc h2 {
-  font-size: 30px;
+.desk-row h3 {
+  font-size: 22px;
 }
 
-.toc .dek {
+.desk-row__done {
+  color: var(--ink-soft);
+  font-size: 16px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.filters button {
+  padding: 5px 12px;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: 700 15px var(--body);
+}
+
+.filters button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.toc-desk {
+  padding-top: 12px;
+}
+
+.toc-desk__head {
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 26px;
+}
+
+.toc {
+  padding: 8px 0;
+}
+
+.toc h3 {
+  margin-bottom: 4px;
   font-size: 18px;
 }
 
-.toc ol {
-  columns: 2 260px;
+.toc ul {
+  columns: 2 300px;
+  column-gap: 32px;
   margin: 0;
-  padding-left: 22px;
+  padding: 0;
+  list-style: none;
+}
+
+.toc li {
+  margin-bottom: 3px;
+  break-inside: avoid;
+}
+
+.toc__facts {
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.dot {
+  display: inline-block;
+  width: 0.55em;
+  height: 0.55em;
+  margin-right: 0.4em;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+}
+
+.dot--read {
+  background: var(--ink);
 }
 
 /* Section page */
+.desk-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+
+.desk-head .dek {
+  margin-bottom: 6px;
+}
+
+.desk-head__count {
+  margin: 0;
+  color: var(--red);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.desk-head > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.desk-head .engraving {
+  flex: 0 0 340px;
+  width: 340px;
+}
+
+.desk-head .engraving--piece {
+  flex: 0 0 120px;
+}
+
+.part-head {
+  margin-top: 30px;
+  font-size: 28px;
+}
+
+.part-dek {
+  margin: 4px 0 10px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.rep {
+  margin-bottom: 20px;
+}
+
+.rep caption {
+  padding-bottom: 6px;
+  font: 700 19px var(--display);
+  text-align: left;
+}
+
+.box.rep th,
+.box.rep td {
+  text-align: left;
+}
+
 .lesson-list {
   margin: 0;
   padding: 0;
@@ -441,22 +724,15 @@ h3 a {
   cursor: pointer;
 }
 
-.lead__diagram {
-  max-width: 340px;
-  margin: 18px 0 0;
-}
-
-.lead__diagram figcaption {
-  margin-top: 6px;
-  font-size: 15px;
-  font-style: italic;
-  line-height: 1.3;
-}
-
 .diagram,
 .inline-puzzle {
   max-width: 440px;
   margin: 20px auto;
+}
+
+/* Holds the space while a puzzle loads, so a lesson's end is not briefly on screen. */
+.inline-puzzle:empty {
+  min-height: 440px;
 }
 
 .diagram figcaption {
@@ -744,13 +1020,56 @@ h3 a {
     justify-content: center;
   }
 
-  .front {
+  .nav {
+    gap: 2px 16px;
+    font-size: 13px;
+  }
+
+  .nav__mine {
+    gap: 2px 16px;
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .hero,
+  .intro {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .rail {
-    padding-left: 0;
-    border-left: 0;
+  .hero {
+    gap: 18px;
+  }
+
+  .desk-card,
+  .desk-card:nth-child(-n + 2) {
+    grid-column: 1 / -1;
+  }
+
+  .desk-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .desk-row span:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .desk-head {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+  }
+
+  .desk-head > div {
+    flex: none;
+    align-self: stretch;
+  }
+
+  .desk-head .engraving {
+    flex: none;
+    width: 100%;
+  }
+
+  .desk-head .engraving--piece {
+    width: 120px;
   }
 
   .lesson-row {

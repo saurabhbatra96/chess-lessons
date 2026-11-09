@@ -16,6 +16,10 @@ const sources = import.meta.glob('../content/*/*.md', {
 export const lessonSource = (slug: string): string | undefined =>
   sources[`../content/${sectionOf(slug)?.id}/${slug}.md`];
 
+/** How many line-drill and guess-the-move blocks a lesson contains. */
+export const drillCount = (slug: string): number =>
+  lessonSource(slug)?.match(/^```(line|game)\b/gm)?.length ?? 0;
+
 const parseMoves = (text: string): string[] =>
   text
     .replace(/\d+\.+/g, ' ')

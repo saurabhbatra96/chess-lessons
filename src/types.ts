@@ -27,14 +27,31 @@ export interface Lesson {
 export interface Section {
   id: string;
   title: string;
-  kicker: string;
   status: 'published' | 'forthcoming';
   dek: string;
   lessons?: Lesson[];
   planned?: string[];
 }
 
+/** One of the five top-level sections a reader sees, grouping the content folders. */
+export interface DeskSpec {
+  id: string;
+  title: string;
+  dek: string;
+  sections: string[];
+  /** The piece drawn when the section has no engraving yet. */
+  piece: string;
+  artAlt: string;
+}
+
+export interface RepertoireGroup {
+  title: string;
+  rows: { they: string; you: string; lesson: string }[];
+}
+
 export interface Course {
   bands: Band[];
+  desks: DeskSpec[];
+  repertoire: RepertoireGroup[];
   sections: Section[];
 }

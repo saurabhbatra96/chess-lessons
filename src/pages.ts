@@ -1,12 +1,26 @@
 import { artImage, artUrl } from './art';
-import { Board } from './board/board';
-import { allLessons, course, esc, findLesson, hasPuzzles, loadPuzzles, sectionOf, sections, tactics, type PublishedSection } from './data';
-import { lessonSource, renderLesson } from './lessons';
+import {
+  allLessons,
+  course,
+  deskOf,
+  desks,
+  esc,
+  findLesson,
+  hasPuzzles,
+  loadPuzzles,
+  PUZZLES_PER_LESSON,
+  sectionOf,
+  tactics,
+  type Desk,
+} from './data';
+import { drillCount, lessonSource, renderLesson } from './lessons';
 import {
   attemptedIds,
   exportProgress,
   getProgress,
+  hasStarted,
   importProgress,
+  markOpened,
   markRead,
   ratingFor,
   recordExam,
@@ -19,9 +33,10 @@ import type { Lesson, Puzzle } from './types';
 
 const app = document.getElementById('app') as HTMLElement;
 const EXAM_PER_LESSON = 2;
-const ARCHIVE_FEN = 'rnb1kb1r/pp3ppp/2p5/4q3/4n3/3Q4/PPPB1PPP/2KR1BNR w kq - 0 9';
+const SAMPLE_PUZZLE = { slug: 'forks', id: 'nXyPN' };
 const PAPER_WASH = 'rgba(239, 230, 210, 0.66)';
 let renderToken = 0;
+let readObserver: IntersectionObserver | undefined;
 
 const dateline = new Date().toLocaleDateString('en-US', {
   weekday: 'long',
@@ -32,6 +47,13 @@ const dateline = new Date().toLocaleDateString('en-US', {
 
 function shell(compact: boolean): HTMLElement {
   const due = dueReviews().length;
+  const mine = hasStarted()
+    ? `<span class="nav__mine">
+        <a href="#/contents">My Course</a>
+        <a href="#/review">Review${due ? ` (${due})` : ''}</a>
+        <a href="#/progress">Progress</a>
+      </span>`
+    : '';
   app.innerHTML = `
     <header class="masthead${compact ? ' masthead--compact' : ''}">
       <div class="masthead__ears">
@@ -49,9 +71,8 @@ function shell(compact: boolean): HTMLElement {
       </div>
       <nav class="nav" aria-label="Sections">
         <a href="#/">Front Page</a>
-        <a href="#/contents">Contents</a>
-        <a href="#/review">Review${due ? ` (${due})` : ''}</a>
-        <a href="#/progress">Box Score</a>
+        ${desks.map((d) => `<a href="#/section/${d.id}">${esc(d.title)}</a>`).join('')}
+        ${mine}
       </nav>
     </header>
     <main id="page" class="page"></main>
@@ -71,114 +92,279 @@ function nextLesson(): Lesson {
   return allLessons.find((l) => !read[l.slug]) ?? allLessons[0];
 }
 
-function sectionBrief(section: PublishedSection): string {
+/** The lesson a returning reader most likely wants: the one left unfinished, or the next in that section. */
+function resumeLesson(): Lesson {
+  const { read, lastLesson } = getProgress();
+  const last = lastLesson ? findLesson(lastLesson) : undefined;
+  if (last && !read[last.slug]) return last;
+  return (last && deskOf(last.slug)?.lessons.find((l) => !read[l.slug])) ?? nextLesson();
+}
+
+const plural = (n: number, word: string) => `${n.toLocaleString('en-US')} ${word}${n === 1 ? '' : 's'}`;
+
+const puzzleCount = (lessons: Lesson[]) => lessons.filter(hasPuzzles).length * PUZZLES_PER_LESSON;
+
+function engraving(desk: Desk): string {
+  return (
+    artImage(`section-${desk.id}`, esc(desk.artAlt), 'engraving') ||
+    `<img class="engraving engraving--piece" src="${import.meta.env.BASE_URL}pieces/${desk.piece}.svg" alt="">`
+  );
+}
+
+function deskCard(desk: Desk): string {
+  const puzzles = puzzleCount(desk.lessons);
   return `
-    <article class="brief">
-      <p class="kicker">${esc(section.kicker)}</p>
-      <h3><a href="#/section/${section.id}">${esc(section.title)}</a></h3>
-      <p>${esc(section.dek)}</p>
+    <article class="desk-card">
+      ${engraving(desk)}
+      <h3><a href="#/section/${desk.id}">${esc(desk.title)}</a></h3>
+      <p class="desk-card__count">${plural(desk.lessons.length, 'lesson')}${puzzles ? ` &middot; ${plural(puzzles, 'puzzle')}` : ''}</p>
+      <p>${esc(desk.dek)}</p>
     </article>`;
 }
 
-function frontPage(page: HTMLElement): void {
-  const lead = nextLesson();
-  const section = sectionOf(lead.slug) as PublishedSection;
-  const index = section.lessons.indexOf(lead) + 1;
-  const { read } = getProgress();
-  const started = Object.keys(read).length > 0;
-  const others = section.lessons.filter((l) => l !== lead).slice(0, 4);
+function welcomeBack(): string {
+  const lesson = resumeLesson();
+  const due = dueReviews().length;
+  return `
+    <aside class="welcome-back">
+      <p>Welcome back. Next up: <a href="${lessonLink(lesson)}">${esc(lesson.title)}</a>${due ? `, with ${plural(due, 'review')} due` : ''}.</p>
+      <a class="button" href="${lessonLink(lesson)}">Continue</a>
+    </aside>`;
+}
+
+function mountSamplePuzzle(token: number): void {
+  const host = document.getElementById('sample-puzzle') as HTMLElement;
+  const after = document.getElementById('sample-after') as HTMLElement;
+  loadPuzzles(SAMPLE_PUZZLE.slug)
+    .then((puzzles) => {
+      if (token !== renderToken) return;
+      const puzzle = puzzles.find((p) => p.id === SAMPLE_PUZZLE.id);
+      if (!puzzle) throw new Error('Sample puzzle not found');
+      // A visitor trying the sample has not started the course, so nothing is recorded.
+      mountPuzzle(host, puzzle, {
+        prompt: 'White has just played Bf4. Find the move that wins a piece.',
+        onResult: () => {
+          after.hidden = false;
+        },
+      });
+    })
+    .catch(() => {
+      host.textContent = 'This puzzle could not be loaded.';
+    });
+}
+
+function frontPage(page: HTMLElement, token: number): void {
+  const first = allLessons[0];
   page.innerHTML = `
-    <div class="front">
-      <article class="lead">
-        <p class="kicker">${esc(section.title)} &middot; Lesson ${index} of ${section.lessons.length}</p>
-        <h1><a href="${lessonLink(lead)}">${esc(lead.title)}</a></h1>
-        <p class="dek">${esc(lead.dek)}</p>
-        ${artImage('front-lead', 'Two men bent over a chessboard at a stone table in Washington Square Park', 'lead__art')}
-        <p class="lead__body">${
-          started
-            ? 'Your place is held. Read the lesson, then work through its exercises.'
-            : 'Back at the board after some time away? Begin here. Each lesson is a short article, and most are followed by seventy puzzles that climb from warm-up to stretch.'
-        }</p>
+    ${hasStarted() ? welcomeBack() : ''}
+    <section class="hero">
+      <div class="lead">
+        <p class="kicker">A free chess course for players rated 1000&ndash;1500</p>
+        <h1>Back at the Board? Start Here.</h1>
+        <p class="dek">Short articles, graded puzzles and a complete opening repertoire, set in the pages of an old New York newspaper.</p>
+        <ul class="facts">
+          <li><strong>${allLessons.length}</strong> lessons</li>
+          <li><strong>${puzzleCount(allLessons).toLocaleString('en-US')}</strong> graded puzzles</li>
+          <li><strong>Free</strong> with no account</li>
+        </ul>
         <p class="cta">
-          <a class="button" href="${lessonLink(lead)}">Read the lesson</a>
-          ${hasPuzzles(lead) ? `<a class="button button--plain" href="${trainLink(lead)}">Go to the puzzles</a>` : ''}
+          <a class="button" href="${lessonLink(first)}">Start lesson one</a>
+          <a class="button button--plain" href="#/contents">Browse all lessons</a>
         </p>
-        <div id="lead-diagram"></div>
-      </article>
-      <aside class="rail">
-        <h2 class="rail__head">Also in ${esc(section.title)}</h2>
-        ${others
-          .map(
-            (l) => `<article class="brief">
-              <h3><a href="${lessonLink(l)}">${esc(l.title)}</a></h3>
-              <p>${esc(l.dek)}</p>
-            </article>`,
-          )
-          .join('')}
-        <a class="more" href="#/section/${section.id}">All ${section.lessons.length} lessons</a>
+      </div>
+      <figure class="hero__art">
+        ${artImage('front-lead', 'Two men, one in a turban and long buttoned coat, study a carved Indian chess set at a stone table in Washington Square Park', 'lead__art')}
+        <figcaption>A carved Indian set, elephants and all, at the stone tables in Washington Square. The game itself began in India as chaturanga.</figcaption>
+      </figure>
+    </section>
+    <div class="intro">
+      <section class="sample">
+        <h2 class="rail__head">The Chess Column</h2>
+        <p class="sample__lede">Try one now. This is how every puzzle in the course works.</p>
+        <div id="sample-puzzle" class="inline-puzzle"></div>
+        <p id="sample-after" class="sample__after" hidden>That was a fork, rated about 1000.
+          <a href="${lessonLink(findLesson(SAMPLE_PUZZLE.slug) as Lesson)}">The lesson on forks</a> explains the idea and is followed by ${PUZZLES_PER_LESSON} more.</p>
+      </section>
+      <aside class="how">
+        <h2 class="rail__head">How It Works</h2>
+        <ol class="steps">
+          <li><strong>Read.</strong> Each lesson is a short article with diagrams and exercises set into the text.</li>
+          <li><strong>Solve.</strong> Most lessons end with ${PUZZLES_PER_LESSON} puzzles, rated from 900 to 1800 and matched to your level.</li>
+          <li><strong>Review.</strong> Anything you miss comes back after one, three and seven days.</li>
+        </ol>
+        <p class="how__note">Your progress stays in this browser, and you can save a copy to move it to another device.</p>
+        <h2 class="rail__head">The Repertoire</h2>
+        <dl class="plays">
+          <dt>As White</dt><dd>The Vienna and f4 system, with the f-pawn going forward against every reply to 1.e4.</dd>
+          <dt>As Black</dt><dd>The French Defense against 1.e4 and the Queen's Gambit Declined against 1.d4.</dd>
+        </dl>
+        <a class="more" href="#/section/openings">See the full repertoire</a>
       </aside>
     </div>
-    <h2 class="band-head">Inside This Edition</h2>
-    <div class="briefs">${sections.map(sectionBrief).join('')}</div>`;
+    <h2 class="band-head">Inside the Paper</h2>
+    <div class="desks">${desks.map(deskCard).join('')}</div>`;
+  mountSamplePuzzle(token);
+}
 
-  if (!artUrl('front-lead')) {
-    const figure = document.createElement('figure');
-    figure.className = 'lead__diagram';
-    const board = new Board();
-    board.setPosition(ARCHIVE_FEN);
-    const caption = document.createElement('figcaption');
-    caption.textContent = 'From the archives: Réti v. Tartakower, Vienna 1910. White to move and mate in three.';
-    figure.append(board.el, caption);
-    (document.getElementById('lead-diagram') as HTMLElement).append(figure);
+function lessonFacts(l: Lesson): string {
+  const drills = drillCount(l.slug);
+  const facts = [hasPuzzles(l) ? `${PUZZLES_PER_LESSON} puzzles` : '', drills ? plural(drills, 'drill') : ''].filter(Boolean);
+  return facts.length ? `<span class="toc__facts">${facts.join(' &middot; ')}</span>` : '';
+}
+
+function deskRow(desk: Desk): string {
+  const { read } = getProgress();
+  const done = desk.lessons.filter((l) => read[l.slug]).length;
+  const next = desk.lessons.find((l) => !read[l.slug]);
+  return `
+    <li class="desk-row">
+      <h3><a href="#/section/${desk.id}">${esc(desk.title)}</a></h3>
+      <span class="desk-row__done">${done} of ${desk.lessons.length} read</span>
+      <span>${next ? `Next: <a href="${lessonLink(next)}">${esc(next.title)}</a>` : 'All read'}</span>
+    </li>`;
+}
+
+const FILTERS = [
+  ['all', 'All'],
+  ['unread', 'Unread'],
+  ['puzzles', 'With puzzles'],
+  ['drills', 'With drills'],
+];
+
+function contents(page: HTMLElement): void {
+  const { read } = getProgress();
+  const started = hasStarted();
+  const resume = resumeLesson();
+  const due = dueReviews().length;
+  const item = (l: Lesson) => `
+    <li data-unread="${!read[l.slug]}" data-puzzles="${hasPuzzles(l)}" data-drills="${drillCount(l.slug) > 0}">
+      <span class="dot${read[l.slug] ? ' dot--read' : ''}" role="img" aria-label="${read[l.slug] ? 'Read' : 'Unread'}"></span>
+      <a href="${lessonLink(l)}">${esc(l.title)}</a>
+      ${lessonFacts(l)}
+    </li>`;
+  page.innerHTML = `
+    <h1 class="section-title">${started ? 'My Course' : 'All Lessons'}</h1>
+    ${
+      started
+        ? `<div class="resume">
+            <div>
+              <p class="kicker">Pick up where you left off</p>
+              <h2><a href="${lessonLink(resume)}">${esc(resume.title)}</a></h2>
+              <p class="resume__dek">${esc(resume.dek)}</p>
+            </div>
+            <p class="cta">
+              <a class="button" href="${lessonLink(resume)}">Continue reading</a>
+              ${due ? `<a class="button button--plain" href="#/review">${plural(due, 'review')} due</a>` : ''}
+            </p>
+          </div>
+          <ul class="desk-rows">${desks.map(deskRow).join('')}</ul>
+          <h2 class="band-head">All Lessons</h2>`
+        : ''
+    }
+    <div class="filters" role="group" aria-label="Filter lessons">
+      ${FILTERS.map(([id, label]) => `<button type="button" data-filter="${id}" aria-pressed="${id === 'all'}">${label}</button>`).join('')}
+    </div>
+    ${desks
+      .map(
+        (desk) => `<section class="toc-desk">
+          <h2 class="toc-desk__head"><a href="#/section/${desk.id}">${esc(desk.title)}</a></h2>
+          ${desk.parts
+            .map(
+              (s) => `<section class="toc">
+                ${desk.parts.length > 1 ? `<h3>${esc(s.title)}</h3>` : ''}
+                <ul>${s.lessons.map(item).join('')}</ul>
+              </section>`,
+            )
+            .join('')}
+        </section>`,
+      )
+      .join('')}`;
+
+  const buttons = [...page.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      const filter = button.dataset.filter as string;
+      for (const b of buttons) b.setAttribute('aria-pressed', String(b === button));
+      for (const li of page.querySelectorAll<HTMLElement>('.toc li')) {
+        li.hidden = filter !== 'all' && li.dataset[filter] !== 'true';
+      }
+      for (const group of page.querySelectorAll<HTMLElement>('.toc, .toc-desk')) {
+        group.hidden = !group.querySelector('li:not([hidden])');
+      }
+    });
   }
 }
 
-function contents(page: HTMLElement): void {
-  page.innerHTML = `
-    <h1 class="section-title">Contents</h1>
-    ${sections
+function repertoire(): string {
+  const { read } = getProgress();
+  return `
+    <h2 class="band-head">The Repertoire: What to Play Against What</h2>
+    ${course.repertoire
       .map(
-        (s) => `<section class="toc">
-          <p class="kicker">${esc(s.kicker)}</p>
-          <h2><a href="#/section/${s.id}">${esc(s.title)}</a></h2>
-          <p class="dek">${esc(s.dek)}</p>
-          <ol>${s.lessons.map((l) => `<li><a href="${lessonLink(l)}">${esc(l.title)}</a></li>`).join('')}</ol>
-        </section>`,
+        (group) => `<table class="box rep">
+          <caption>${esc(group.title)}</caption>
+          <thead><tr><th scope="col">If they play</th><th scope="col">You play</th><th scope="col">Lesson</th></tr></thead>
+          <tbody>${group.rows
+            .map((row) => {
+              const lesson = findLesson(row.lesson) as Lesson;
+              return `<tr>
+                <th scope="row">${esc(row.they)}</th>
+                <td>${esc(row.you)}</td>
+                <td><a href="${lessonLink(lesson)}">${esc(lesson.title)}</a>${read[lesson.slug] ? ' <span class="read">Read</span>' : ''}</td>
+              </tr>`;
+            })
+            .join('')}</tbody>
+        </table>`,
       )
       .join('')}`;
 }
 
 function sectionPage(page: HTMLElement, id: string): void {
-  const section = sections.find((s) => s.id === id);
-  if (!section) return notFound(page);
+  const desk = desks.find((d) => d.id === id) ?? desks.find((d) => d.sections.includes(id));
+  if (!desk) return notFound(page);
   const { read, counts, bestExam } = getProgress();
+  const done = desk.lessons.filter((l) => read[l.slug]).length;
   page.innerHTML = `
-    ${artImage(`section-${section.id}`, `An engraving for the ${esc(section.title)} section`, 'section__art')}
-    <p class="kicker">${esc(section.kicker)}</p>
-    <h1 class="section-title">${esc(section.title)}</h1>
-    <p class="dek">${esc(section.dek)}</p>
-    <ol class="lesson-list">
-      ${section.lessons
-        .map((l, i) => {
-          const tried = counts[l.slug]?.tried ?? 0;
-          return `<li class="lesson-row">
-            <span class="lesson-row__num">${i + 1}</span>
-            <div>
-              <h2><a href="${lessonLink(l)}">${esc(l.title)}</a>${read[l.slug] ? ' <span class="read">Read</span>' : ''}</h2>
-              <p>${esc(l.dek)}</p>
-            </div>
-            ${hasPuzzles(l) ? `<a class="lesson-row__train" href="${trainLink(l)}">Puzzles${tried ? ` (${tried}/70)` : ''}</a>` : ''}
-          </li>`;
-        })
-        .join('')}
-    </ol>
+    <header class="desk-head">
+      <div>
+        <h1 class="section-title">${esc(desk.title)}</h1>
+        <p class="dek">${esc(desk.dek)}</p>
+        <p class="desk-head__count">${done} of ${plural(desk.lessons.length, 'lesson')} read</p>
+      </div>
+      ${engraving(desk)}
+    </header>
+    ${desk.id === 'openings' ? repertoire() : ''}
+    ${desk.parts
+      .map(
+        (part) => `<section id="part-${part.id}">
+          ${desk.parts.length > 1 ? `<h2 class="part-head">${esc(part.title)}</h2><p class="part-dek">${esc(part.dek)}</p>` : ''}
+          <ol class="lesson-list">
+            ${part.lessons
+              .map((l, i) => {
+                const tried = counts[l.slug]?.tried ?? 0;
+                return `<li class="lesson-row">
+                  <span class="lesson-row__num">${i + 1}</span>
+                  <div>
+                    <h2><a href="${lessonLink(l)}">${esc(l.title)}</a>${read[l.slug] ? ' <span class="read">Read</span>' : ''}</h2>
+                    <p>${esc(l.dek)}</p>
+                  </div>
+                  ${hasPuzzles(l) ? `<a class="lesson-row__train" href="${trainLink(l)}">Puzzles${tried ? ` (${tried}/${PUZZLES_PER_LESSON})` : ''}</a>` : ''}
+                </li>`;
+              })
+              .join('')}
+          </ol>
+        </section>`,
+      )
+      .join('')}
     ${
-      section === tactics
+      desk.id === tactics.id
         ? `<p class="cta"><a class="button" href="#/exam">Sit the final examination</a>${
             bestExam !== null ? ` <span class="note">Best score: ${bestExam} of ${EXAM_PER_LESSON * tactics.lessons.length}</span>` : ''
           }</p>`
         : ''
     }`;
+  // Older links name a content folder, so land on that part of the section.
+  if (id !== desk.id) document.getElementById(`part-${id}`)?.scrollIntoView();
 }
 
 function lessonPage(page: HTMLElement, slug: string): void {
@@ -200,7 +386,14 @@ function lessonPage(page: HTMLElement, slug: string): void {
       </div>
     </article>`;
   renderLesson(document.getElementById('body') as HTMLElement, slug, source);
-  markRead(slug);
+  markOpened(slug);
+  // A lesson counts as read once the reader reaches its end, not when it is opened.
+  readObserver = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    markRead(slug);
+    readObserver?.disconnect();
+  });
+  readObserver.observe(page.querySelector('.article__end') as HTMLElement);
 }
 
 async function trainPage(page: HTMLElement, slug: string, token: number): Promise<void> {
@@ -381,6 +574,7 @@ function colophon(page: HTMLElement): void {
       <p><strong>Puzzles</strong> come from the <a href="https://database.lichess.org/#puzzles">Lichess puzzle database</a>, released under CC0. Their ratings are set by the players who solved them. Each puzzle links to its Lichess page.</p>
       <p><strong>Chess pieces</strong> are by <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces">Colin M. L. Burnett</a>, licensed <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a> and GPLv2+, recoloured here in ink and newsprint tones; the recoloured set is shared under the same terms.</p>
       <p><strong>Classic games</strong> are taken from the player collections at <a href="https://www.pgnmentor.com/files.html">PGN Mentor</a>. Opening names follow the open <a href="https://github.com/lichess-org/chess-openings">Lichess opening list</a>.</p>
+      <p><strong>Illustrations</strong> were generated with Midjourney. The photographs are invented scenes, not records of real people or events.</p>
       <p><strong>Move rules</strong> are by <a href="https://github.com/jhlywa/chess.js">chess.js</a>, BSD licence.</p>
       <p>The <em>Courier</em> is an invented newspaper and has no connection with any real publication.</p>
     </div>`;
@@ -393,6 +587,7 @@ function notFound(page: HTMLElement): void {
 export async function render(): Promise<void> {
   const token = ++renderToken;
   const [, route, arg] = location.hash.replace(/^#/, '').split('/');
+  readObserver?.disconnect();
   const page = shell(Boolean(route));
   const paper = artUrl('paper-texture');
   // The wash keeps the grain but stops folds banding and specks reading as punctuation.
@@ -402,7 +597,7 @@ export async function render(): Promise<void> {
   try {
     switch (route ?? '') {
       case '':
-        return frontPage(page);
+        return frontPage(page, token);
       case 'contents':
         return contents(page);
       case 'section':

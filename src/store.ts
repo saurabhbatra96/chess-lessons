@@ -17,6 +17,7 @@ export interface Progress {
   reviews: Record<string, StoredReview>;
   read: Record<string, boolean>;
   bestExam: number | null;
+  lastLesson: string | null;
 }
 
 const empty = (): Progress => ({
@@ -27,6 +28,7 @@ const empty = (): Progress => ({
   reviews: {},
   read: {},
   bestExam: null,
+  lastLesson: null,
 });
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -84,6 +86,14 @@ export function markRead(slug: string): void {
   progress.read[slug] = true;
   save();
 }
+
+export function markOpened(slug: string): void {
+  progress.lastLesson = slug;
+  save();
+}
+
+export const hasStarted = (): boolean =>
+  progress.lastLesson !== null || Object.keys(progress.read).length > 0 || Object.keys(progress.attempted).length > 0;
 
 export function recordExam(score: number): void {
   progress.bestExam = Math.max(progress.bestExam ?? 0, score);

@@ -91,7 +91,13 @@ test.afterEach(() => {
 test('front page and contents show the course', async ({ page }, info) => {
   await page.goto('./');
   await expect(page.locator('.masthead__title')).toContainText('Washington Square Courier');
-  await expect(page.locator('.lead h1')).toHaveText('How to Solve');
+  await expect(page.locator('.lead h1')).toHaveText('Back at the Board? Start Here.');
+  await expect(page.locator('.facts')).toContainText(`${slugs.length} lessons`);
+  await expect(page.locator('.facts')).toContainText('2,380 graded puzzles');
+  await expect(page.locator('.desk-card')).toHaveCount(course.desks.length);
+  await expect(page.locator('.welcome-back')).toHaveCount(0);
+  await expect(page.locator('.nav')).not.toContainText('My Course');
+  if (info.project.name === 'desktop') await expect(page.getByRole('link', { name: 'Start lesson one' })).toBeInViewport();
   const art = page.locator('.lead__art');
   await expect(art).toBeVisible();
   await expect.poll(() => art.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
@@ -179,11 +185,61 @@ test('a lesson without puzzles offers no puzzle link', async ({ page }) => {
 });
 
 test('every section page lists its lessons', async ({ page }) => {
-  for (const section of course.sections) {
-    await page.goto(`./#/section/${section.id}`);
-    await expect(page.locator('.lesson-row')).toHaveCount(section.lessons.length);
+  const lessonsIn = (ids: string[]) =>
+    course.sections
+      .filter((s: { id: string }) => ids.includes(s.id))
+      .reduce((n: number, s: { lessons: unknown[] }) => n + s.lessons.length, 0);
+  for (const desk of course.desks) {
+    await page.goto(`./#/section/${desk.id}`);
+    await expect(page.locator('.lesson-row')).toHaveCount(lessonsIn(desk.sections));
     await noSideScroll(page);
   }
+  await page.goto('./#/section/black-french');
+  await expect(page.locator('.section-title')).toHaveText('Openings');
+  await expect(page.locator('.rep tbody a').first()).toHaveText('The Vienna Gambit');
+  await noSideScroll(page);
+});
+
+test('the sample puzzle plays without starting the course', async ({ page }) => {
+  await page.goto('./');
+  const root = page.locator('[data-puzzle-id="nXyPN"]');
+  await expect(root).toBeVisible();
+  await expect(page.locator('#sample-after')).toBeHidden();
+  await solve(page, root, puzzlesOf('forks').find((p) => p.id === 'nXyPN')!);
+  await expect(root.locator('.puzzle__status')).toHaveText('Solved at the first attempt.');
+  await expect(page.locator('#sample-after')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('.welcome-back')).toHaveCount(0);
+});
+
+test('a lesson is read at its end, and returning readers can resume', async ({ page }, info) => {
+  await page.goto('./#/lesson/forks');
+  await expect(page.locator('.article h1')).toBeVisible();
+  await page.waitForTimeout(300);
+  await page.goto('./#/contents');
+  await expect(page.locator('.section-title')).toHaveText('My Course');
+  await expect(page.locator('.resume h2')).toHaveText('The Fork');
+  await expect(page.locator('.dot--read')).toHaveCount(0);
+
+  await page.goto('./#/lesson/forks');
+  await page.locator('.article__end').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+  await page.goto('./#/contents');
+  await expect(page.locator('.dot--read')).toHaveCount(1);
+  await expect(page.locator('.resume h2')).toHaveText('How to Solve');
+  await expect(page.locator('.desk-row').first()).toContainText('1 of 12 read');
+  await noSideScroll(page);
+  await shot(page, 'my-course', info.project.name);
+
+  await page.getByRole('button', { name: 'With drills' }).click();
+  await expect(page.locator('.toc li:visible', { hasText: 'The Fork' })).toHaveCount(0);
+  await expect(page.locator('.toc li:visible').getByRole('link', { name: 'The Vienna Gambit', exact: true })).toHaveCount(1);
+  await page.getByRole('button', { name: 'All', exact: true }).click();
+  await expect(page.locator('.toc li:visible', { hasText: 'The Fork' })).toHaveCount(1);
+
+  await page.goto('./');
+  await expect(page.locator('.welcome-back')).toContainText('How to Solve');
+  await expect(page.locator('.nav')).toContainText('My Course');
 });
 
 test('solving a puzzle updates the rating and survives a reload', async ({ page }, info) => {

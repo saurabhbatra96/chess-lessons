@@ -31,11 +31,148 @@
       "max": 1800
     }
   ],
+  "desks": [
+    {
+      "id": "tactics",
+      "title": "Tactics",
+      "dek": "Twelve lessons on the motifs that decide club games, each followed by a graded set of puzzles.",
+      "sections": [
+        "tactics"
+      ],
+      "piece": "bN",
+      "artAlt": "A woodcut of a black knight rearing over fallen chess pieces"
+    },
+    {
+      "id": "middlegame",
+      "title": "Middlegame",
+      "dek": "What to do when there is nothing to calculate: plans, piece activity, squares and pawn structures.",
+      "sections": [
+        "strategy",
+        "positional"
+      ],
+      "piece": "bB",
+      "artAlt": "An engraving of a surveyor at a tripod on a giant chessboard laid out like a street grid"
+    },
+    {
+      "id": "openings",
+      "title": "Openings",
+      "dek": "A repertoire for both sides: the Vienna and f4 system as White, the French and the Queen's Gambit Declined as Black, and a tour of the rest.",
+      "sections": [
+        "white-vienna",
+        "black-french",
+        "black-qgd",
+        "gallery"
+      ],
+      "piece": "bP",
+      "artAlt": "An engraving of the Brooklyn Bridge, its two halves reaching toward each other across the river"
+    },
+    {
+      "id": "endgames",
+      "title": "Endgames",
+      "dek": "The cheapest rating points on the board.",
+      "sections": [
+        "endgames"
+      ],
+      "piece": "bK",
+      "artAlt": "An engraving of a man watching a lone chess king in the pool of light from a street lamp"
+    },
+    {
+      "id": "classics",
+      "title": "Classics",
+      "dek": "Famous games and model games for your openings. Sit in the master's chair and score yourself against the game.",
+      "sections": [
+        "classics"
+      ],
+      "piece": "bQ",
+      "artAlt": "An engraving of an empty chair at a lit chess table"
+    }
+  ],
+  "repertoire": [
+    {
+      "title": "As White, after 1.e4",
+      "rows": [
+        {
+          "they": "1...e5",
+          "you": "2.Nc3 and 3.f4",
+          "lesson": "vienna-gambit"
+        },
+        {
+          "they": "1...e5 2.Nc3 Nc6 or 2...Bc5",
+          "you": "3.Bc4 or 3.Nf3",
+          "lesson": "vienna-others"
+        },
+        {
+          "they": "1...c5",
+          "you": "2.Nc3 and 3.f4",
+          "lesson": "grand-prix"
+        },
+        {
+          "they": "1...c6",
+          "you": "2.d4 d5 3.f3",
+          "lesson": "against-caro-kann"
+        },
+        {
+          "they": "1...e6",
+          "you": "2.d3 and a King's Indian set-up",
+          "lesson": "against-french"
+        },
+        {
+          "they": "1...d5, 1...Nf6 or 1...d6",
+          "you": "Quick development",
+          "lesson": "other-replies"
+        }
+      ]
+    },
+    {
+      "title": "As Black, against 1.e4 with 1...e6 2.d4 d5",
+      "rows": [
+        {
+          "they": "3.e5",
+          "you": "3...c5",
+          "lesson": "french-advance"
+        },
+        {
+          "they": "3.exd5",
+          "you": "3...exd5",
+          "lesson": "french-exchange"
+        },
+        {
+          "they": "3.Nd2",
+          "you": "3...c5",
+          "lesson": "french-tarrasch"
+        },
+        {
+          "they": "3.Nc3",
+          "you": "3...Nf6",
+          "lesson": "french-classical"
+        }
+      ]
+    },
+    {
+      "title": "As Black, against 1.d4 and the rest",
+      "rows": [
+        {
+          "they": "1.d4 d5 2.c4",
+          "you": "2...e6 and the Lasker Defense",
+          "lesson": "qgd-lasker"
+        },
+        {
+          "they": "2.c4 e6 3.Nc3 Nf6 4.cxd5",
+          "you": "4...exd5",
+          "lesson": "qgd-exchange"
+        },
+        {
+          "they": "The London, 1.c4 or 1.Nf3",
+          "you": "...d5, ...e6 and ...c5",
+          "lesson": "qgd-sidelines"
+        }
+      ]
+    }
+  ],
   "sections": [
     {
       "id": "tactics",
       "title": "Tactics",
-      "kicker": "Section A",
       "status": "published",
       "dek": "Twelve lessons on the motifs that decide club games, each followed by a graded set of puzzles.",
       "lessons": [
@@ -153,7 +290,6 @@
     {
       "id": "strategy",
       "title": "Strategy",
-      "kicker": "Section B",
       "status": "published",
       "dek": "What to do when there is nothing to calculate.",
       "lessons": [
@@ -196,7 +332,6 @@
     {
       "id": "positional",
       "title": "Positional Understanding",
-      "kicker": "Section C",
       "status": "published",
       "dek": "Squares, structures, and the slow accumulation of small things.",
       "lessons": [
@@ -240,7 +375,6 @@
     {
       "id": "white-vienna",
       "title": "White: The Vienna and f4 System",
-      "kicker": "Section D",
       "status": "published",
       "dek": "One attacking idea, carried across every reply to 1.e4.",
       "lessons": [
@@ -298,7 +432,6 @@
     {
       "id": "black-french",
       "title": "Black: The French Defense",
-      "kicker": "Section E",
       "status": "published",
       "dek": "Concede space, keep the structure, and strike at the chain.",
       "lessons": [
@@ -345,7 +478,6 @@
     {
       "id": "black-qgd",
       "title": "Black: The Queen's Gambit Declined",
-      "kicker": "Section F",
       "status": "published",
       "dek": "French structures, carried over to meet 1.d4.",
       "lessons": [
@@ -384,7 +516,6 @@
     {
       "id": "gallery",
       "title": "The Opening Gallery",
-      "kicker": "Section G",
       "status": "published",
       "dek": "Short tours of everything else, so that nothing comes as a shock.",
       "lessons": [
@@ -428,7 +559,6 @@
     {
       "id": "endgames",
       "title": "Endgames",
-      "kicker": "Section H",
       "status": "published",
       "dek": "The cheapest rating points on the board.",
       "lessons": [
@@ -479,7 +609,6 @@
     {
       "id": "classics",
       "title": "Guess-the-Move Classics",
-      "kicker": "Section I",
       "status": "published",
       "dek": "Sit in the master's chair and score yourself against the game.",
       "lessons": [
