@@ -19,7 +19,9 @@ export interface Lesson {
   slug: string;
   title: string;
   dek: string;
-  themes: string[];
+  themes?: string[];
+  openings?: string[];
+  solver?: string;
 }
 
 export interface Section {

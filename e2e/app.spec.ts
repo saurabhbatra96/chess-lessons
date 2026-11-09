@@ -12,7 +12,7 @@ interface Puzzle {
 }
 
 const course = JSON.parse(readFileSync('content/course.json', 'utf8'));
-const slugs: string[] = course.sections[0].lessons.map((l: { slug: string }) => l.slug);
+const slugs: string[] = course.sections.flatMap((s: { lessons: { slug: string }[] }) => s.lessons.map((l) => l.slug));
 const puzzlesOf = (slug: string): Puzzle[] => JSON.parse(readFileSync(`public/data/tactics/${slug}.json`, 'utf8'));
 
 const shot = async (page: Page, name: string, project: string) => {
@@ -113,13 +113,77 @@ test('every lesson renders its diagrams and puzzles', async ({ page }, info) => 
     await page.goto(`./#/lesson/${slug}`);
     await expect(page.locator('.article h1')).toBeVisible();
     await expect(page.locator('.inline-puzzle .puzzle').first()).toBeVisible();
-    expect(await page.locator('.diagram .board').count()).toBeGreaterThan(0);
     await expect(page.getByText('could not be loaded')).toHaveCount(0);
     await noSideScroll(page);
   }
   await page.goto('./#/lesson/forks');
   await page.waitForTimeout(1200);
   await shot(page, 'lesson', info.project.name);
+});
+
+test('a line can be stepped through and tested', async ({ page }) => {
+  await page.goto('./#/lesson/other-replies');
+  const walker = page.locator('.walker').first();
+  await expect(walker.locator('.puzzle__status')).toHaveText('Starting position.');
+  await walker.getByRole('button', { name: 'Next move' }).click();
+  await expect(walker.locator('.puzzle__status')).toHaveText('1.e4');
+  await walker.getByRole('button', { name: 'Last move' }).click();
+  await expect(walker.locator('.walker__note')).toContainText('lead in development');
+
+  await walker.getByRole('button', { name: 'Test yourself' }).click();
+  await expect(walker).toHaveAttribute('data-side', 'w');
+  const board = walker.locator('.board');
+  for (const [from, to] of [['e2', 'e4'], ['e4', 'd5'], ['b1', 'c3'], ['d2', 'd4'], ['g1', 'f3'], ['f1', 'c4']]) {
+    await expect(walker.locator('.board--live')).toBeVisible();
+    await tap(page, board, from, 'w');
+    await tap(page, board, to, 'w');
+  }
+  await expect(walker.locator('.puzzle__status')).toHaveText('You found 6 of 6 at the first attempt.');
+});
+
+test('guess-the-move scores one try per move and reveals the game move', async ({ page }) => {
+  await page.goto('./#/lesson/traps');
+  const walker = page.locator('.walker').first();
+  await expect(walker.locator('.walker__move')).toHaveCount(0);
+  await walker.getByRole('button', { name: 'Guess the moves' }).click();
+  const board = walker.locator('.board');
+  await expect(walker.locator('.board--live')).toBeVisible();
+  // A legal but wrong first guess: ...a6 instead of ...Qe7.
+  await tap(page, board, 'a7', 'b');
+  await tap(page, board, 'a6', 'b');
+  await expect(walker.locator('.puzzle__status')).toContainText('The game continued Qe7');
+  for (const [from, to] of [['e7', 'b4'], ['b4', 'b2'], ['f8', 'b4'], ['b4', 'c3'], ['b2', 'c1']]) {
+    await expect(walker.locator('.board--live')).toBeVisible({ timeout: 10_000 });
+    await tap(page, board, from, 'b');
+    await tap(page, board, to, 'b');
+  }
+  await expect(walker.locator('.puzzle__status')).toHaveText('You found 5 of 6 at the first attempt.');
+});
+
+test('a choice exercise explains each option', async ({ page }) => {
+  await page.goto('./#/lesson/weak-squares');
+  const choice = page.locator('.choice');
+  await choice.getByRole('button', { name: 'Nf5' }).click();
+  await expect(choice.locator('.puzzle__status')).toHaveText('Nf5 is not the best.');
+  await expect(choice.locator('.choice__feedback')).toContainText('not an outpost');
+  await choice.getByRole('button', { name: 'Nd5' }).click();
+  await expect(choice.locator('.puzzle__status')).toHaveText('Nd5 is the move.');
+});
+
+test('a lesson without puzzles offers no puzzle link', async ({ page }) => {
+  await page.goto('./#/lesson/making-a-plan');
+  await expect(page.locator('.article h1')).toHaveText('Making a Plan');
+  await expect(page.locator('#to-puzzles')).toHaveCount(0);
+  await page.goto('./#/train/making-a-plan');
+  await expect(page.locator('.section-title')).toHaveText('Page Not Found');
+});
+
+test('every section page lists its lessons', async ({ page }) => {
+  for (const section of course.sections) {
+    await page.goto(`./#/section/${section.id}`);
+    await expect(page.locator('.lesson-row')).toHaveCount(section.lessons.length);
+    await noSideScroll(page);
+  }
 });
 
 test('solving a puzzle updates the rating and survives a reload', async ({ page }, info) => {

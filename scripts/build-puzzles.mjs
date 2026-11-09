@@ -1,4 +1,4 @@
-// Builds public/data/tactics/*.json from the Lichess puzzle database (CC0).
+// Builds public/data/<section>/*.json from the Lichess puzzle database (CC0).
 // Columns: PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags,DailyDate
 import { createReadStream, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { open } from 'node:fs/promises';
@@ -8,7 +8,7 @@ import { createZstdDecompress } from 'node:zlib';
 import { Chess } from 'chess.js';
 
 const SOURCE = '.cache/lichess_db_puzzle.csv.zst';
-const OUT = 'public/data/tactics';
+const OUT = 'public/data';
 const PER_BAND = 14;
 
 // Loose limits admit candidates; strict ones rank first, so relaxed puzzles only fill gaps.
@@ -22,7 +22,12 @@ if (!existsSync(SOURCE)) {
 
 const course = JSON.parse(readFileSync('content/course.json', 'utf8'));
 const { bands } = course;
-const lessons = course.sections.find((s) => s.id === 'tactics').lessons;
+const lessons = course.sections.flatMap((s) =>
+  s.lessons.filter((l) => l.themes || l.openings).map((l) => ({ ...l, section: s.id })),
+);
+
+const wanted = (lesson) => lesson.themes ?? lesson.openings;
+const labels = (p, lesson) => (lesson.themes ? p.themes : p.openings);
 
 const bandFor = (rating) => bands.find((b) => rating >= b.min && rating < b.max);
 const buckets = new Map();
@@ -83,11 +88,16 @@ for await (const line of lines) {
   const plays = +playsS;
   if (popularity < LOOSE.popularity || plays < LOOSE.plays || deviation > LOOSE.deviation) continue;
   const themes = themesS.split(' ');
+  const openings = (openingTags ?? '').split(' ').filter(Boolean);
+  // The first listed move is the opponent's, so the solver is the side not to move in the FEN.
+  const solver = fen.split(' ')[1] === 'w' ? 'b' : 'w';
   for (const lesson of lessons) {
-    if (!lesson.themes.some((t) => themes.includes(t))) continue;
+    if (lesson.solver && lesson.solver !== solver) continue;
+    const has = lesson.themes ? themes : openings;
+    if (!wanted(lesson).some((t) => has.includes(t))) continue;
     const k = key(lesson.slug, band.id);
     const bucket = buckets.get(k) ?? [];
-    bucket.push({ id, fen, moves, rating, deviation, popularity, plays, themes, gameUrl, openingTags, band: band.id });
+    bucket.push({ id, fen, moves, rating, deviation, popularity, plays, themes, openings, gameUrl, band: band.id });
     if (bucket.length > CAP * 4) {
       bucket.sort(rank);
       bucket.length = CAP;
@@ -120,31 +130,36 @@ function isLegalLine(p) {
   }
 }
 
-// Narrowest lessons pick first so rare motifs are not consumed by broad ones.
+// Tactics chooses first so its published puzzle ids never change. Within each group
+// the narrowest lessons pick first, so rare motifs are not consumed by broad ones.
 const scarcity = (lesson) =>
   bands.reduce((sum, b) => sum + (buckets.get(key(lesson.slug, b.id))?.length ?? 0), 0);
-const order = [...lessons].sort((a, b) => scarcity(a) - scarcity(b));
+const bySparsest = (group) => [...group].sort((a, b) => scarcity(a) - scarcity(b));
+const order = [
+  ...bySparsest(lessons.filter((l) => l.section === 'tactics')),
+  ...bySparsest(lessons.filter((l) => l.section !== 'tactics')),
+];
 
 const usedPuzzles = new Set();
 const usedGames = new Set();
 const report = [];
-mkdirSync(OUT, { recursive: true });
 
 for (const lesson of order) {
   const chosen = [];
   let relaxed = 0;
   const counts = {};
+  const tags = wanted(lesson);
   for (const band of bands) {
     const pool = (buckets.get(key(lesson.slug, band.id)) ?? []).sort(rank);
     let picked = 0;
     // Spread multi-theme lessons evenly so one motif cannot fill the whole band.
-    const perTheme = lesson.themes.length > 1 ? Math.ceil(PER_BAND / Math.min(lesson.themes.length, 3)) : PER_BAND;
+    const perTheme = tags.length > 1 ? Math.ceil(PER_BAND / Math.min(tags.length, 3)) : PER_BAND;
     const themeCounts = {};
     for (const pass of [true, false]) {
       for (const p of pool) {
         if (picked >= PER_BAND) break;
         if (usedPuzzles.has(p.id) || usedGames.has(gameOf(p))) continue;
-        const theme = lesson.themes.find((t) => p.themes.includes(t));
+        const theme = tags.find((t) => labels(p, lesson).includes(t));
         if (pass && (themeCounts[theme] ?? 0) >= perTheme) continue;
         if (!isLegalLine(p)) continue;
         usedPuzzles.add(p.id);
@@ -164,14 +179,19 @@ for (const lesson of order) {
     moves: p.moves.split(' '),
     rating: p.rating,
     band: p.band,
-    themes: p.themes.filter((t) => lesson.themes.includes(t)),
+    themes: labels(p, lesson).filter((t) => tags.includes(t)),
   }));
-  writeFileSync(`${OUT}/${lesson.slug}.json`, JSON.stringify(out));
-  report.push({ lesson: lesson.slug, total: out.length, relaxed, ...counts });
+  mkdirSync(`${OUT}/${lesson.section}`, { recursive: true });
+  writeFileSync(`${OUT}/${lesson.section}/${lesson.slug}.json`, JSON.stringify(out));
+  report.push({ section: lesson.section, lesson: lesson.slug, total: out.length, relaxed, ...counts });
 }
 
-report.sort((a, b) => lessons.findIndex((l) => l.slug === a.lesson) - lessons.findIndex((l) => l.slug === b.lesson));
-writeFileSync(`${OUT}/index.json`, JSON.stringify(Object.fromEntries(report.map((r) => [r.lesson, r.total]))));
+const position = (r) => lessons.findIndex((l) => l.slug === r.lesson);
+report.sort((a, b) => position(a) - position(b));
+for (const section of new Set(report.map((r) => r.section))) {
+  const rows = report.filter((r) => r.section === section);
+  writeFileSync(`${OUT}/${section}/index.json`, JSON.stringify(Object.fromEntries(rows.map((r) => [r.lesson, r.total]))));
+}
 console.log(`Scanned ${total} puzzles.`);
 console.table(report);
 console.log('Total selected:', report.reduce((n, r) => n + r.total, 0));

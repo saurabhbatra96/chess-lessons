@@ -587,7 +587,112 @@ h3 a {
   text-align: center;
 }
 
+/* Lines, games and choices */
+.walker:focus-visible {
+  outline-offset: 6px;
+}
+
+.walker__title {
+  margin-bottom: 8px;
+  font: 700 19px / 1.25 var(--display);
+  text-align: center;
+}
+
+.walker__note {
+  min-height: 1.4em;
+  margin: 0 0 10px;
+  font-size: 17px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.walker__steps,
+.choice__options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.walker__steps[hidden] {
+  display: none;
+}
+
+.walker__steps button,
+.choice__options button {
+  min-width: 48px;
+  padding: 7px 12px;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: 700 17px var(--body);
+}
+
+.walker__steps button:hover,
+.choice__options button:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.choice__options button[data-result='right'] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.choice__options button[data-result='wrong'] {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.choice__options button[data-result='wrong']:hover {
+  background: transparent;
+}
+
+.choice__feedback {
+  min-height: 1.4em;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.walker__moves {
+  margin: 0 0 12px;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.walker__move {
+  padding: 0 3px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.walker__move:disabled {
+  cursor: default;
+}
+
+.walker__move--current {
+  background: var(--ink);
+  color: var(--paper);
+}
+
 /* Box score */
+.box__section th {
+  padding-top: 16px;
+  color: var(--red);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+
 .box {
   width: 100%;
   border-collapse: collapse;

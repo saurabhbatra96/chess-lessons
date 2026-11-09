@@ -2,7 +2,7 @@
 
 A chess course in newspaper form: short articles and graded puzzles for players rated roughly 1000 to 1500. It is a static site with no server or accounts, and it is built for GitHub Pages.
 
-The pilot contains the Tactics section: 12 lessons and 840 puzzles. Other sections appear in the contents as forthcoming.
+It contains 49 lessons across nine sections and 2,380 graded puzzles: tactics, strategy, positional play, a White repertoire built on the Vienna, the French and Queen's Gambit Declined for Black, an opening gallery, endgames, and guess-the-move classics.
 
 ## Commands
 
@@ -23,7 +23,7 @@ Push to `main`, and set the repository's Pages source to **GitHub Actions** unde
 
 ## Writing lessons
 
-Lessons are Markdown files in `content/tactics/`, listed in `content/course.json`. Two fenced blocks add chess content.
+Lessons are Markdown files in `content/<section>/`, listed in `content/course.json`. Fenced blocks add chess content: `board`, `puzzle`, `line`, `game` and `choice`.
 
 ````markdown
 ```board
@@ -39,6 +39,8 @@ prompt: Look for the open file.
 ```
 ````
 
+A `line` is a repertoire line with notes that the reader can step through and be tested on. A `game` is the same with a `from` move for guess-the-move play. A `choice` offers candidate moves with an `answer`. Every line move and choice is engine-tested, so `npm run validate` rejects unsound recommendations.
+
 In a `board` block, `best` lists moves the engine must agree with, `avoid` lists moves it must find losing, and `mate: yes` asserts checkmate. A `puzzle` id must exist in that lesson's puzzle file. `npm run validate` enforces all of this.
 
 To add art, see `art/PROMPTS.md`.
@@ -47,4 +49,5 @@ To add art, see `art/PROMPTS.md`.
 
 - Puzzles: [Lichess puzzle database](https://database.lichess.org/#puzzles), CC0.
 - Chess pieces: Colin M. L. Burnett, CC BY-SA 3.0 and GPLv2+, recoloured. The recoloured set in `public/pieces/` is shared under the same terms.
+- Classic games: [PGN Mentor](https://www.pgnmentor.com/files.html) player collections.
 - Rules: [chess.js](https://github.com/jhlywa/chess.js), BSD. Stockfish (GPLv3) is a development-only checking tool and is not part of the published site.

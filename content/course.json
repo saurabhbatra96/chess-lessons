@@ -1,10 +1,35 @@
 {
   "bands": [
-    { "id": "warmup", "name": "Warm-up", "min": 900, "max": 1100 },
-    { "id": "club", "name": "Club", "min": 1100, "max": 1300 },
-    { "id": "solid", "name": "Solid", "min": 1300, "max": 1500 },
-    { "id": "strong", "name": "Strong", "min": 1500, "max": 1650 },
-    { "id": "stretch", "name": "Stretch", "min": 1650, "max": 1800 }
+    {
+      "id": "warmup",
+      "name": "Warm-up",
+      "min": 900,
+      "max": 1100
+    },
+    {
+      "id": "club",
+      "name": "Club",
+      "min": 1100,
+      "max": 1300
+    },
+    {
+      "id": "solid",
+      "name": "Solid",
+      "min": 1300,
+      "max": 1500
+    },
+    {
+      "id": "strong",
+      "name": "Strong",
+      "min": 1500,
+      "max": 1650
+    },
+    {
+      "id": "stretch",
+      "name": "Stretch",
+      "min": 1650,
+      "max": 1800
+    }
   ],
   "sections": [
     {
@@ -14,83 +39,476 @@
       "status": "published",
       "dek": "Twelve lessons on the motifs that decide club games, each followed by a graded set of puzzles.",
       "lessons": [
-        { "slug": "how-to-solve", "title": "How to Solve", "dek": "Checks, captures, threats, and then the question most players skip.", "themes": ["hangingPiece", "trappedPiece", "mateIn2"] },
-        { "slug": "forks", "title": "The Fork", "dek": "One piece, two targets, and a bill your opponent cannot pay in full.", "themes": ["fork"] },
-        { "slug": "pins", "title": "The Pin", "dek": "A piece that cannot move is a piece that is not really defending.", "themes": ["pin"] },
-        { "slug": "skewers", "title": "Skewers and X-Rays", "dek": "The pin turned inside out, and the attack that passes through a piece.", "themes": ["skewer", "xRayAttack"] },
-        { "slug": "discovered", "title": "Discovered Attacks", "dek": "Move one piece and unmask another: two threats for the price of a tempo.", "themes": ["discoveredAttack", "doubleCheck"] },
-        { "slug": "removing-the-defender", "title": "Removing the Defender", "dek": "When the target is guarded, go after the guard.", "themes": ["capturingDefender", "deflection"] },
-        { "slug": "attraction", "title": "Attraction and Decoys", "dek": "Offering material to drag a piece onto the wrong square.", "themes": ["attraction"] },
-        { "slug": "back-rank", "title": "The Back Rank", "dek": "Three unmoved pawns can be a coffin as easily as a shelter.", "themes": ["backRankMate"] },
-        { "slug": "mating-patterns", "title": "Mating Patterns", "dek": "Smothered, Arabian, Anastasia, Boden: pictures worth keeping in the head.", "themes": ["smotheredMate", "arabianMate", "anastasiaMate", "bodenMate", "doubleBishopMate", "hookMate", "dovetailMate"] },
-        { "slug": "in-between-moves", "title": "In-Between Moves", "dek": "The recapture is not compulsory. Look for something stronger first.", "themes": ["intermezzo"] },
-        { "slug": "quiet-moves", "title": "Quiet Moves and Clearance", "dek": "The hardest tactics to see are the ones that make no noise.", "themes": ["quietMove", "clearance", "interference"] },
-        { "slug": "defending", "title": "Defending, and a Final Examination", "dek": "Tactics work for both sides. Finding the saving move, then a mixed test.", "themes": ["defensiveMove"] }
+        {
+          "slug": "how-to-solve",
+          "title": "How to Solve",
+          "dek": "Checks, captures, threats, and then the question most players skip.",
+          "themes": [
+            "hangingPiece",
+            "trappedPiece",
+            "mateIn2"
+          ]
+        },
+        {
+          "slug": "forks",
+          "title": "The Fork",
+          "dek": "One piece, two targets, and a bill your opponent cannot pay in full.",
+          "themes": [
+            "fork"
+          ]
+        },
+        {
+          "slug": "pins",
+          "title": "The Pin",
+          "dek": "A piece that cannot move is a piece that is not really defending.",
+          "themes": [
+            "pin"
+          ]
+        },
+        {
+          "slug": "skewers",
+          "title": "Skewers and X-Rays",
+          "dek": "The pin turned inside out, and the attack that passes through a piece.",
+          "themes": [
+            "skewer",
+            "xRayAttack"
+          ]
+        },
+        {
+          "slug": "discovered",
+          "title": "Discovered Attacks",
+          "dek": "Move one piece and unmask another: two threats for the price of a tempo.",
+          "themes": [
+            "discoveredAttack",
+            "doubleCheck"
+          ]
+        },
+        {
+          "slug": "removing-the-defender",
+          "title": "Removing the Defender",
+          "dek": "When the target is guarded, go after the guard.",
+          "themes": [
+            "capturingDefender",
+            "deflection"
+          ]
+        },
+        {
+          "slug": "attraction",
+          "title": "Attraction and Decoys",
+          "dek": "Offering material to drag a piece onto the wrong square.",
+          "themes": [
+            "attraction"
+          ]
+        },
+        {
+          "slug": "back-rank",
+          "title": "The Back Rank",
+          "dek": "Three unmoved pawns can be a coffin as easily as a shelter.",
+          "themes": [
+            "backRankMate"
+          ]
+        },
+        {
+          "slug": "mating-patterns",
+          "title": "Mating Patterns",
+          "dek": "Smothered, Arabian, Anastasia, Boden: pictures worth keeping in the head.",
+          "themes": [
+            "smotheredMate",
+            "arabianMate",
+            "anastasiaMate",
+            "bodenMate",
+            "doubleBishopMate",
+            "hookMate",
+            "dovetailMate"
+          ]
+        },
+        {
+          "slug": "in-between-moves",
+          "title": "In-Between Moves",
+          "dek": "The recapture is not compulsory. Look for something stronger first.",
+          "themes": [
+            "intermezzo"
+          ]
+        },
+        {
+          "slug": "quiet-moves",
+          "title": "Quiet Moves and Clearance",
+          "dek": "The hardest tactics to see are the ones that make no noise.",
+          "themes": [
+            "quietMove",
+            "clearance",
+            "interference"
+          ]
+        },
+        {
+          "slug": "defending",
+          "title": "Defending, and a Final Examination",
+          "dek": "Tactics work for both sides. Finding the saving move, then a mixed test.",
+          "themes": [
+            "defensiveMove"
+          ]
+        }
       ]
     },
     {
       "id": "strategy",
       "title": "Strategy",
       "kicker": "Section B",
-      "status": "forthcoming",
+      "status": "published",
       "dek": "What to do when there is nothing to calculate.",
-      "planned": ["Making a plan", "Piece activity", "Attacking the king", "Trading the right pieces", "Converting advantages"]
+      "lessons": [
+        {
+          "slug": "making-a-plan",
+          "title": "Making a Plan",
+          "dek": "Find the worst piece, the weakest point, and the side of the board that matters."
+        },
+        {
+          "slug": "piece-activity",
+          "title": "Piece Activity",
+          "dek": "A piece is worth what it can reach."
+        },
+        {
+          "slug": "attacking-the-king",
+          "title": "Attacking the King",
+          "dek": "Count the attackers, open the lines, and bring everyone.",
+          "themes": [
+            "kingsideAttack",
+            "queensideAttack",
+            "exposedKing"
+          ]
+        },
+        {
+          "slug": "trading-pieces",
+          "title": "Trading the Right Pieces",
+          "dek": "Every exchange changes the game. Choose which ones."
+        },
+        {
+          "slug": "converting",
+          "title": "Converting Advantages",
+          "dek": "A winning position still has to be won.",
+          "themes": [
+            "advancedPawn",
+            "promotion"
+          ]
+        }
+      ]
     },
     {
       "id": "positional",
       "title": "Positional Understanding",
       "kicker": "Section C",
-      "status": "forthcoming",
+      "status": "published",
       "dek": "Squares, structures, and the slow accumulation of small things.",
-      "planned": ["Weak squares and outposts", "Good and bad bishops", "Open files", "Prophylaxis", "Pawn structures: the IQP, the Carlsbad, the French chain"]
+      "lessons": [
+        {
+          "slug": "weak-squares",
+          "title": "Weak Squares and Outposts",
+          "dek": "A square no pawn can guard is a square that can be rented for good."
+        },
+        {
+          "slug": "good-and-bad-bishops",
+          "title": "Good and Bad Bishops",
+          "dek": "Your pawns decide how much your bishop is worth."
+        },
+        {
+          "slug": "open-files",
+          "title": "Open Files",
+          "dek": "Rooks want open roads, and the seventh rank is where they lead."
+        },
+        {
+          "slug": "prophylaxis",
+          "title": "Prophylaxis",
+          "dek": "Ask what your opponent wants, then quietly decline to allow it."
+        },
+        {
+          "slug": "isolated-queen-pawn",
+          "title": "The Isolated Queen Pawn",
+          "dek": "A weakness in the endgame and a battering ram before it."
+        },
+        {
+          "slug": "carlsbad",
+          "title": "The Carlsbad Structure",
+          "dek": "The minority attack, and the plans it leaves for Black."
+        },
+        {
+          "slug": "french-chain",
+          "title": "The French Pawn Chain",
+          "dek": "Find the base of the chain and go after it."
+        }
+      ]
     },
     {
       "id": "white-vienna",
       "title": "White: The Vienna and f4 System",
       "kicker": "Section D",
-      "status": "forthcoming",
+      "status": "published",
       "dek": "One attacking idea, carried across every reply to 1.e4.",
-      "planned": ["1.e4 e5 2.Nc3 and the Vienna Gambit", "The Grand Prix against the Sicilian", "Lines against the Caro-Kann", "Lines against the French"]
+      "lessons": [
+        {
+          "slug": "vienna-gambit",
+          "title": "The Vienna Gambit",
+          "dek": "1.e4 e5 2.Nc3 Nf6 3.f4, and the main reply in the centre.",
+          "openings": [
+            "Vienna_Game_Vienna_Gambit"
+          ],
+          "solver": "w"
+        },
+        {
+          "slug": "vienna-others",
+          "title": "The Rest of the Vienna",
+          "dek": "Meeting 2...Nc6 and 2...Bc5 with the same f-pawn in mind.",
+          "openings": [
+            "Vienna_Game_Max_Lange_Defense",
+            "Vienna_Game_Stanley_Variation",
+            "Vienna_Game_Anderssen_Defense",
+            "Vienna_Game_Other_variations"
+          ],
+          "solver": "w"
+        },
+        {
+          "slug": "grand-prix",
+          "title": "The Grand Prix Attack",
+          "dek": "The f-pawn goes forward against the Sicilian as well.",
+          "openings": [
+            "Sicilian_Defense_Grand_Prix_Attack",
+            "Sicilian_Defense_McDonnell_Attack"
+          ],
+          "solver": "w"
+        },
+        {
+          "slug": "against-caro-kann",
+          "title": "Against the Caro-Kann",
+          "dek": "3.f3 keeps the theme and takes the opponent out of the books.",
+          "openings": [
+            "Caro-Kann_Defense_Maroczy_Variation"
+          ],
+          "solver": "w"
+        },
+        {
+          "slug": "against-french",
+          "title": "Against the French",
+          "dek": "A King's Indian set-up that needs almost no memory.",
+          "openings": [
+            "French_Defense_Kings_Indian_Attack"
+          ],
+          "solver": "w"
+        }
+      ]
     },
     {
       "id": "black-french",
       "title": "Black: The French Defense",
       "kicker": "Section E",
-      "status": "forthcoming",
+      "status": "published",
       "dek": "Concede space, keep the structure, and strike at the chain.",
-      "planned": ["The Advance", "The Exchange", "The Tarrasch", "The main 3.Nc3 lines"]
+      "lessons": [
+        {
+          "slug": "french-advance",
+          "title": "The Advance",
+          "dek": "3.e5 c5, and the pressure that follows on d4.",
+          "openings": [
+            "French_Defense_Advance_Variation"
+          ],
+          "solver": "b"
+        },
+        {
+          "slug": "french-exchange",
+          "title": "The Exchange",
+          "dek": "Symmetry is not the same as a draw.",
+          "openings": [
+            "French_Defense_Exchange_Variation"
+          ],
+          "solver": "b"
+        },
+        {
+          "slug": "french-tarrasch",
+          "title": "The Tarrasch",
+          "dek": "3.Nd2 c5 and a position with an isolated pawn to play for.",
+          "openings": [
+            "French_Defense_Tarrasch_Variation"
+          ],
+          "solver": "b"
+        },
+        {
+          "slug": "french-classical",
+          "title": "The Classical 3.Nc3",
+          "dek": "3...Nf6, the Steinitz, and the 4.Bg5 lines.",
+          "openings": [
+            "French_Defense_Classical_Variation",
+            "French_Defense_Steinitz_Attack",
+            "French_Defense_Steinitz_Variation"
+          ],
+          "solver": "b"
+        }
+      ]
     },
     {
       "id": "black-qgd",
       "title": "Black: The Queen's Gambit Declined",
       "kicker": "Section F",
-      "status": "forthcoming",
+      "status": "published",
       "dek": "French structures, carried over to meet 1.d4.",
-      "planned": ["Main lines against 1.d4", "Transpositions against 1.c4 and 1.Nf3", "The Carlsbad plans for Black"]
+      "lessons": [
+        {
+          "slug": "qgd-lasker",
+          "title": "The Lasker Defense",
+          "dek": "The freeing knight jump that lightens the position.",
+          "openings": [
+            "Queens_Gambit_Declined_Normal_Defense",
+            "Queens_Gambit_Declined_Modern_Variation",
+            "Queens_Gambit_Declined_Three_Knights_Variation"
+          ],
+          "solver": "b"
+        },
+        {
+          "slug": "qgd-exchange",
+          "title": "The Exchange Variation",
+          "dek": "Meeting the Carlsbad from the Black side.",
+          "openings": [
+            "Queens_Gambit_Declined_Exchange_Variation"
+          ],
+          "solver": "b"
+        },
+        {
+          "slug": "qgd-sidelines",
+          "title": "The London, 1.c4 and 1.Nf3",
+          "dek": "Reaching familiar ground from everything else.",
+          "openings": [
+            "Queens_Gambit_Declined_Other_variations",
+            "Queens_Gambit_Declined_Harrwitz_Attack"
+          ],
+          "solver": "b"
+        }
+      ]
     },
     {
       "id": "gallery",
       "title": "The Opening Gallery",
       "kicker": "Section G",
-      "status": "forthcoming",
+      "status": "published",
       "dek": "Short tours of everything else, so that nothing comes as a shock.",
-      "planned": ["Popular sidelines at club level", "The traps worth knowing", "Gambits to enjoy and gambits to refute"]
+      "lessons": [
+        {
+          "slug": "other-replies",
+          "title": "Other Replies to 1.e4",
+          "dek": "The Scandinavian, Alekhine and Pirc in brief.",
+          "openings": [
+            "Scandinavian_Defense",
+            "Alekhine_Defense",
+            "Pirc_Defense",
+            "Modern_Defense"
+          ],
+          "solver": "w"
+        },
+        {
+          "slug": "traps",
+          "title": "Traps Worth Knowing",
+          "dek": "The ones you will fall into once, and then never again.",
+          "openings": [
+            "Englund_Gambit",
+            "Englund_Gambit_Complex",
+            "Russian_Game_Stafford_Gambit",
+            "Italian_Game_Two_Knights_Defense_Fried_Liver_Attack"
+          ]
+        },
+        {
+          "slug": "gambits",
+          "title": "Gambits to Enjoy and Gambits to Refute",
+          "dek": "How to tell a real sacrifice from an empty one.",
+          "openings": [
+            "Kings_Gambit",
+            "Kings_Gambit_Accepted",
+            "Danish_Gambit",
+            "Danish_Gambit_Accepted",
+            "Budapest_Defense"
+          ]
+        }
+      ]
     },
     {
       "id": "endgames",
       "title": "Endgames",
       "kicker": "Section H",
-      "status": "forthcoming",
+      "status": "published",
       "dek": "The cheapest rating points on the board.",
-      "planned": ["King and pawn endings", "The opposition", "Lucena and Philidor", "Basic rook endings", "Converting won positions"]
+      "lessons": [
+        {
+          "slug": "king-and-pawn",
+          "title": "King and Pawn Endings",
+          "dek": "Count the squares before you trade the last pieces.",
+          "themes": [
+            "pawnEndgame"
+          ]
+        },
+        {
+          "slug": "opposition",
+          "title": "The Opposition",
+          "dek": "When having the move is the worst thing that can happen.",
+          "themes": [
+            "zugzwang"
+          ]
+        },
+        {
+          "slug": "lucena-philidor",
+          "title": "Lucena and Philidor",
+          "dek": "The two rook endings everyone must know.",
+          "themes": [
+            "rookEndgame"
+          ]
+        },
+        {
+          "slug": "rook-endings",
+          "title": "Basic Rook Endings",
+          "dek": "Activity, cut-offs, and rooks behind passed pawns.",
+          "themes": [
+            "rookEndgame"
+          ]
+        },
+        {
+          "slug": "converting-endings",
+          "title": "Converting Won Endings",
+          "dek": "Queens, minor pieces, and how not to stalemate.",
+          "themes": [
+            "queenEndgame",
+            "bishopEndgame",
+            "knightEndgame"
+          ]
+        }
+      ]
     },
     {
       "id": "classics",
       "title": "Guess-the-Move Classics",
       "kicker": "Section I",
-      "status": "forthcoming",
+      "status": "published",
       "dek": "Sit in the master's chair and score yourself against the game.",
-      "planned": ["Annotated classics, move by move", "Model games for your openings"]
+      "lessons": [
+        {
+          "slug": "opera-game",
+          "title": "The Opera Game",
+          "dek": "Morphy, in a box at the Paris Opera, 1858."
+        },
+        {
+          "slug": "game-of-the-century",
+          "title": "The Game of the Century",
+          "dek": "Bobby Fischer, thirteen years old, gives up his queen."
+        },
+        {
+          "slug": "model-vienna",
+          "title": "Model Game: The Vienna Gambit",
+          "dek": "Euwe plays your main line at The Hague."
+        },
+        {
+          "slug": "model-french",
+          "title": "Model Game: The French Advance",
+          "dek": "Botvinnik undermines the chain and queens a pawn."
+        },
+        {
+          "slug": "model-qgd",
+          "title": "Model Game: The Queen's Gambit Declined",
+          "dek": "Botvinnik shows how much activity Black can find."
+        }
+      ]
     }
   ]
 }

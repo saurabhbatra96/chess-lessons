@@ -9,6 +9,7 @@ Avoid any real newspaper's name, logo or masthead lettering. Midjourney often ga
 | `paper-texture` | Page background, tiled | 1024 x 1024 |
 | `front-lead` | Lead story on the front page | 1456 x 816 |
 | `section-tactics` | Top of the Tactics section | 1456 x 624 |
+| `section-strategy`, `section-positional`, `section-white-vienna`, `section-black-french`, `section-black-qgd`, `section-gallery`, `section-endgames`, `section-classics` | Top of each other section (optional) | 1456 x 624 |
 | `masthead` | Replaces the typeset title (optional) | 1456 x 256 |
 
 ## paper-texture

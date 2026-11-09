@@ -1,6 +1,6 @@
 import { artImage, artUrl } from './art';
 import { Board } from './board/board';
-import { course, esc, findLesson, loadPuzzles, tactics } from './data';
+import { allLessons, course, esc, findLesson, hasPuzzles, loadPuzzles, sectionOf, sections, tactics, type PublishedSection } from './data';
 import { lessonSource, renderLesson } from './lessons';
 import {
   attemptedIds,
@@ -15,7 +15,7 @@ import {
 import { mountPuzzle } from './trainer/player';
 import { pickNext } from './trainer/rating';
 import { isDue } from './trainer/review';
-import type { Lesson, Puzzle, Section } from './types';
+import type { Lesson, Puzzle } from './types';
 
 const app = document.getElementById('app') as HTMLElement;
 const EXAM_PER_LESSON = 2;
@@ -50,7 +50,6 @@ function shell(compact: boolean): HTMLElement {
       <nav class="nav" aria-label="Sections">
         <a href="#/">Front Page</a>
         <a href="#/contents">Contents</a>
-        <a href="#/section/tactics">Tactics</a>
         <a href="#/review">Review${due ? ` (${due})` : ''}</a>
         <a href="#/progress">Box Score</a>
       </nav>
@@ -69,44 +68,45 @@ function dueReviews(now = Date.now()) {
 
 function nextLesson(): Lesson {
   const { read } = getProgress();
-  return tactics.lessons.find((l) => !read[l.slug]) ?? tactics.lessons[0];
+  return allLessons.find((l) => !read[l.slug]) ?? allLessons[0];
 }
 
-function forthcoming(section: Section): string {
+function sectionBrief(section: PublishedSection): string {
   return `
-    <article class="brief brief--muted">
-      <p class="kicker">${esc(section.kicker)} &middot; Forthcoming</p>
-      <h3>${esc(section.title)}</h3>
+    <article class="brief">
+      <p class="kicker">${esc(section.kicker)}</p>
+      <h3><a href="#/section/${section.id}">${esc(section.title)}</a></h3>
       <p>${esc(section.dek)}</p>
     </article>`;
 }
 
 function frontPage(page: HTMLElement): void {
   const lead = nextLesson();
-  const index = tactics.lessons.indexOf(lead) + 1;
+  const section = sectionOf(lead.slug) as PublishedSection;
+  const index = section.lessons.indexOf(lead) + 1;
   const { read } = getProgress();
   const started = Object.keys(read).length > 0;
-  const others = tactics.lessons.filter((l) => l !== lead).slice(0, 4);
+  const others = section.lessons.filter((l) => l !== lead).slice(0, 4);
   page.innerHTML = `
     <div class="front">
       <article class="lead">
-        <p class="kicker">Tactics &middot; Lesson ${index} of ${tactics.lessons.length}</p>
+        <p class="kicker">${esc(section.title)} &middot; Lesson ${index} of ${section.lessons.length}</p>
         <h1><a href="${lessonLink(lead)}">${esc(lead.title)}</a></h1>
         <p class="dek">${esc(lead.dek)}</p>
         ${artImage('front-lead', 'Two men bent over a chessboard at a stone table in Washington Square Park', 'lead__art')}
         <p class="lead__body">${
           started
-            ? 'Your place is held. Read the lesson, then work the graded puzzles that follow it.'
-            : 'Back at the board after some time away? Begin here. Each lesson is a short article followed by seventy puzzles that climb from warm-up to stretch.'
+            ? 'Your place is held. Read the lesson, then work through its exercises.'
+            : 'Back at the board after some time away? Begin here. Each lesson is a short article, and most are followed by seventy puzzles that climb from warm-up to stretch.'
         }</p>
         <p class="cta">
           <a class="button" href="${lessonLink(lead)}">Read the lesson</a>
-          <a class="button button--plain" href="${trainLink(lead)}">Go to the puzzles</a>
+          ${hasPuzzles(lead) ? `<a class="button button--plain" href="${trainLink(lead)}">Go to the puzzles</a>` : ''}
         </p>
         <div id="lead-diagram"></div>
       </article>
       <aside class="rail">
-        <h2 class="rail__head">Also in Tactics</h2>
+        <h2 class="rail__head">Also in ${esc(section.title)}</h2>
         ${others
           .map(
             (l) => `<article class="brief">
@@ -115,11 +115,11 @@ function frontPage(page: HTMLElement): void {
             </article>`,
           )
           .join('')}
-        <a class="more" href="#/section/tactics">All twelve lessons</a>
+        <a class="more" href="#/section/${section.id}">All ${section.lessons.length} lessons</a>
       </aside>
     </div>
-    <h2 class="band-head">Coming in Later Editions</h2>
-    <div class="briefs">${course.sections.filter((s) => s.status === 'forthcoming').map(forthcoming).join('')}</div>`;
+    <h2 class="band-head">Inside This Edition</h2>
+    <div class="briefs">${sections.map(sectionBrief).join('')}</div>`;
 
   if (!artUrl('front-lead')) {
     const figure = document.createElement('figure');
@@ -136,31 +136,29 @@ function frontPage(page: HTMLElement): void {
 function contents(page: HTMLElement): void {
   page.innerHTML = `
     <h1 class="section-title">Contents</h1>
-    ${course.sections
-      .map((s) => {
-        const items =
-          s.status === 'published'
-            ? (s.lessons ?? []).map((l) => `<li><a href="${lessonLink(l)}">${esc(l.title)}</a></li>`).join('')
-            : (s.planned ?? []).map((item) => `<li>${esc(item)}</li>`).join('');
-        return `<section class="toc">
-          <p class="kicker">${esc(s.kicker)}${s.status === 'forthcoming' ? ' &middot; Forthcoming' : ''}</p>
-          <h2>${esc(s.title)}</h2>
+    ${sections
+      .map(
+        (s) => `<section class="toc">
+          <p class="kicker">${esc(s.kicker)}</p>
+          <h2><a href="#/section/${s.id}">${esc(s.title)}</a></h2>
           <p class="dek">${esc(s.dek)}</p>
-          <ol>${items}</ol>
-        </section>`;
-      })
+          <ol>${s.lessons.map((l) => `<li><a href="${lessonLink(l)}">${esc(l.title)}</a></li>`).join('')}</ol>
+        </section>`,
+      )
       .join('')}`;
 }
 
-function sectionPage(page: HTMLElement): void {
+function sectionPage(page: HTMLElement, id: string): void {
+  const section = sections.find((s) => s.id === id);
+  if (!section) return notFound(page);
   const { read, counts, bestExam } = getProgress();
   page.innerHTML = `
-    ${artImage('section-tactics', 'An engraving of a knight rearing over fallen chess pieces', 'section__art')}
-    <p class="kicker">${esc(tactics.kicker)}</p>
-    <h1 class="section-title">${esc(tactics.title)}</h1>
-    <p class="dek">${esc(tactics.dek)}</p>
+    ${artImage(`section-${section.id}`, `An engraving for the ${esc(section.title)} section`, 'section__art')}
+    <p class="kicker">${esc(section.kicker)}</p>
+    <h1 class="section-title">${esc(section.title)}</h1>
+    <p class="dek">${esc(section.dek)}</p>
     <ol class="lesson-list">
-      ${tactics.lessons
+      ${section.lessons
         .map((l, i) => {
           const tried = counts[l.slug]?.tried ?? 0;
           return `<li class="lesson-row">
@@ -169,30 +167,35 @@ function sectionPage(page: HTMLElement): void {
               <h2><a href="${lessonLink(l)}">${esc(l.title)}</a>${read[l.slug] ? ' <span class="read">Read</span>' : ''}</h2>
               <p>${esc(l.dek)}</p>
             </div>
-            <a class="lesson-row__train" href="${trainLink(l)}">Puzzles${tried ? ` (${tried}/70)` : ''}</a>
+            ${hasPuzzles(l) ? `<a class="lesson-row__train" href="${trainLink(l)}">Puzzles${tried ? ` (${tried}/70)` : ''}</a>` : ''}
           </li>`;
         })
         .join('')}
     </ol>
-    <p class="cta"><a class="button" href="#/exam">Sit the final examination</a>${
-      bestExam !== null ? ` <span class="note">Best score: ${bestExam} of ${EXAM_PER_LESSON * tactics.lessons.length}</span>` : ''
-    }</p>`;
+    ${
+      section === tactics
+        ? `<p class="cta"><a class="button" href="#/exam">Sit the final examination</a>${
+            bestExam !== null ? ` <span class="note">Best score: ${bestExam} of ${EXAM_PER_LESSON * tactics.lessons.length}</span>` : ''
+          }</p>`
+        : ''
+    }`;
 }
 
 function lessonPage(page: HTMLElement, slug: string): void {
   const lesson = findLesson(slug);
+  const section = sectionOf(slug);
   const source = lessonSource(slug);
-  if (!lesson || !source) return notFound(page);
-  const i = tactics.lessons.indexOf(lesson);
-  const next = tactics.lessons[i + 1];
+  if (!lesson || !section || !source) return notFound(page);
+  const i = section.lessons.indexOf(lesson);
+  const next = allLessons[allLessons.indexOf(lesson) + 1];
   page.innerHTML = `
     <article class="article">
-      <p class="kicker"><a href="#/section/tactics">Tactics</a> &middot; Lesson ${i + 1} of ${tactics.lessons.length}</p>
+      <p class="kicker"><a href="#/section/${section.id}">${esc(section.title)}</a> &middot; Lesson ${i + 1} of ${section.lessons.length}</p>
       <h1>${esc(lesson.title)}</h1>
       <p class="dek">${esc(lesson.dek)}</p>
       <div class="article__body" id="body"></div>
       <div class="article__end">
-        <a class="button" id="to-puzzles" href="${trainLink(lesson)}">Work the graded puzzles</a>
+        ${hasPuzzles(lesson) ? `<a class="button" id="to-puzzles" href="${trainLink(lesson)}">Work the graded puzzles</a>` : ''}
         ${next ? `<a class="button button--plain" href="${lessonLink(next)}">Next: ${esc(next.title)}</a>` : ''}
       </div>
     </article>`;
@@ -202,7 +205,7 @@ function lessonPage(page: HTMLElement, slug: string): void {
 
 async function trainPage(page: HTMLElement, slug: string, token: number): Promise<void> {
   const lesson = findLesson(slug);
-  if (!lesson) return notFound(page);
+  if (!lesson || !hasPuzzles(lesson)) return notFound(page);
   page.innerHTML = `<p class="note">Setting type&hellip;</p>`;
   const puzzles = await loadPuzzles(slug);
   if (token !== renderToken) return;
@@ -319,8 +322,9 @@ async function examPage(page: HTMLElement, token: number): Promise<void> {
 
 function progressPage(page: HTMLElement): void {
   const { counts } = getProgress();
-  const rows = tactics.lessons.map((l) => ({
+  const rows = allLessons.filter(hasPuzzles).map((l) => ({
     lesson: l,
+    section: sectionOf(l.slug)?.title ?? '',
     tried: counts[l.slug]?.tried ?? 0,
     solved: counts[l.slug]?.solved ?? 0,
     rating: ratingFor(l.slug),
@@ -337,7 +341,8 @@ function progressPage(page: HTMLElement): void {
       <thead><tr><th scope="col">Motif</th><th scope="col">Tried</th><th scope="col">Solved</th><th scope="col">Rating</th></tr></thead>
       <tbody>${rows
         .map(
-          (r) => `<tr><th scope="row"><a href="${trainLink(r.lesson)}">${esc(r.lesson.title)}</a></th>
+          (r, i) => `${r.section !== rows[i - 1]?.section ? `<tr class="box__section"><th colspan="4" scope="colgroup">${esc(r.section)}</th></tr>` : ''}
+            <tr><th scope="row"><a href="${trainLink(r.lesson)}">${esc(r.lesson.title)}</a></th>
             <td>${r.tried}</td><td>${r.solved}</td><td>${r.tried ? r.rating : '&ndash;'}</td></tr>`,
         )
         .join('')}</tbody>
@@ -375,6 +380,7 @@ function colophon(page: HTMLElement): void {
     <div class="prose">
       <p><strong>Puzzles</strong> come from the <a href="https://database.lichess.org/#puzzles">Lichess puzzle database</a>, released under CC0. Their ratings are set by the players who solved them. Each puzzle links to its Lichess page.</p>
       <p><strong>Chess pieces</strong> are by <a href="https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces">Colin M. L. Burnett</a>, licensed <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a> and GPLv2+, recoloured here in ink and newsprint tones; the recoloured set is shared under the same terms.</p>
+      <p><strong>Classic games</strong> are taken from the player collections at <a href="https://www.pgnmentor.com/files.html">PGN Mentor</a>. Opening names follow the open <a href="https://github.com/lichess-org/chess-openings">Lichess opening list</a>.</p>
       <p><strong>Move rules</strong> are by <a href="https://github.com/jhlywa/chess.js">chess.js</a>, BSD licence.</p>
       <p>The <em>Courier</em> is an invented newspaper and has no connection with any real publication.</p>
     </div>`;
@@ -400,7 +406,7 @@ export async function render(): Promise<void> {
       case 'contents':
         return contents(page);
       case 'section':
-        return arg === 'tactics' ? sectionPage(page) : notFound(page);
+        return sectionPage(page, arg);
       case 'lesson':
         return lessonPage(page, arg);
       case 'train':
