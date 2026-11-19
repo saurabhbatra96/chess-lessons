@@ -39,5 +39,16 @@ export function loadPuzzles(slug: string): Promise<Puzzle[]> {
   return pending;
 }
 
-export const esc = (text: string): string =>
+/** Maps every puzzle id in the course to its lesson. Loads all puzzle files, so call it only when needed. */
+export async function puzzleIndex(): Promise<Map<string, string>> {
+  const lessons = allLessons.filter(hasPuzzles);
+  const sets = await Promise.all(lessons.map((l) => loadPuzzles(l.slug)));
+  const index = new Map<string, string>();
+  lessons.forEach((l, i) => {
+    for (const p of sets[i]) index.set(p.id, l.slug);
+  });
+  return index;
+}
+
+export const esc =(text: string): string =>
   text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);

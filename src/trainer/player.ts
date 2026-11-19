@@ -1,13 +1,16 @@
 import { Board } from '../board/board';
+import type { Outcome } from '../store';
 import type { Puzzle } from '../types';
 import { PuzzleSession } from './session';
 
 export interface PlayerOptions {
   prompt?: string;
-  /** Called once per puzzle, with whether it was solved on the first try. */
-  onResult?: (solved: boolean) => void;
+  /** Called once per puzzle, with whether it was solved on the first try and how it went. */
+  onResult?: (solved: boolean, outcome: Outcome) => void;
   onNext?: () => void;
   nextLabel?: string;
+  /** Shown once a revealed solution has played out. */
+  revealedText?: string;
 }
 
 const REPLY_DELAY = 350;
@@ -69,10 +72,10 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
     status.dataset.tone = tone;
   };
 
-  const report = (solved: boolean) => {
+  const report = (outcome: Outcome) => {
     if (reported) return;
     reported = true;
-    options.onResult?.(solved);
+    options.onResult?.(outcome === 'clean', outcome);
   };
 
   const finish = (text: string, tone: string) => {
@@ -105,7 +108,7 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
     }
     await board.animate(uci, session.fenBeforeReply);
     if (result.status === 'solved') {
-      report(cleanRun);
+      report(cleanRun ? 'clean' : 'stumble');
       finish(cleanRun ? 'Solved at the first attempt.' : 'Solved, with a stumble.', cleanRun ? 'right' : '');
       return;
     }
@@ -120,7 +123,7 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
     if (busy) return;
     busy = true;
     cleanRun = false;
-    report(false);
+    report('revealed');
     board.setInteractive(null);
     reveal.hidden = true;
     typed.hidden = true;
@@ -135,7 +138,7 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
         await pause();
       }
     }
-    finish('Filed for review: it will return tomorrow.', '');
+    finish(options.revealedText ?? 'Filed under Review Misses. Due tomorrow.', '');
   };
 
   board.onMove = (uci) => void play(uci);

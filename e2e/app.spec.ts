@@ -256,9 +256,11 @@ test('solving a puzzle updates the rating and survives a reload', async ({ page 
 
   await page.reload();
   await page.goto('./#/progress');
-  const row = page.locator('.box tbody tr', { hasText: 'The Fork' });
-  await expect(row.locator('td').nth(0)).toHaveText('1');
-  await expect(row.locator('td').nth(1)).toHaveText('1');
+  const row = page.locator('.ledger__row', { hasText: 'The Fork' });
+  await expect(row).toHaveAttribute('data-tried', '1');
+  await expect(row).toHaveAttribute('data-solved', '1');
+  await expect(row.locator('.strip__clean')).toHaveCount(1);
+  await expect(page.locator('.tally__figures')).toContainText('1 solved clean');
   await noSideScroll(page);
   await shot(page, 'box-score', info.project.name);
 });
@@ -411,16 +413,73 @@ test('progress exports and imports, and bad files are refused', async ({ page })
 
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  const tried = page.locator('.box tbody tr', { hasText: 'The Fork' }).locator('td').nth(0);
-  await expect(tried).toHaveText('0');
+  const row = page.locator('.ledger__row', { hasText: 'The Fork' });
+  await expect(row).toHaveAttribute('data-tried', '0');
 
   const input = page.locator('#import');
   await input.setInputFiles({ name: 'bad.json', mimeType: 'application/json', buffer: Buffer.from('{"nope":1}') });
   await expect(page.locator('#import-note')).toContainText('nothing was changed');
-  await expect(tried).toHaveText('0');
+  await expect(row).toHaveAttribute('data-tried', '0');
 
   await input.setInputFiles({ name: 'good.json', mimeType: 'application/json', buffer: Buffer.from(saved) });
-  await expect(tried).toHaveText('1');
+  await expect(row).toHaveAttribute('data-tried', '1');
+});
+
+test('a stumble is clipped, revised in the clippings file, spiked, and can go back in the pile', async ({ page }, info) => {
+  await page.goto('./#/train/back-rank');
+  await expect(page.locator('.board--live')).toBeVisible();
+  const missed = await currentPuzzle(page, 'back-rank');
+  await page.locator('.puzzle__typed input').fill(wrongMove(missed).san);
+  await page.locator('.puzzle__typed input').press('Enter');
+  await expect(page.locator('.puzzle__status')).toHaveText('Not that move. Look again.');
+  await solve(page, page.locator('.puzzle'), missed);
+  await expect(page.locator('.puzzle__status')).toHaveText('Solved, with a stumble.');
+  await expect(page.locator('.lesson-tally__text')).toContainText('1 of 70');
+  await expect(page.locator('.lesson-tally .strip__missed')).toHaveCount(1);
+  await expect(page.locator('.nav')).toContainText('Clippings (1)');
+
+  // Revision serves the clipping again and again without retiring it.
+  await page.locator('.lesson-tally a', { hasText: 'clipping' }).click();
+  await expect(page.locator('.section-title')).toHaveText('The Clippings File');
+  await expect(page.locator(`[data-puzzle-id="${missed.id}"]`)).toBeVisible();
+  await noSideScroll(page);
+  await shot(page, 'clippings', info.project.name);
+  for (let round = 1; round <= 3; round++) {
+    await solve(page, page.locator('.puzzle'), missed);
+    await expect(page.locator('#sitting')).toHaveText(`This sitting: ${round} of ${round} clean`);
+    if (round < 3) {
+      await page.getByRole('button', { name: 'Next clipping' }).click();
+      await expect(page.locator(`[data-puzzle-id="${missed.id}"] .board--live`)).toBeVisible();
+    }
+  }
+  await expect(page.locator('#clip-tools')).toContainText('clean 3 in a row');
+  await expect(page.locator('#spike-mastered')).toHaveText('Spike 1 mastered clipping');
+  await page.locator('#spike').click();
+  await expect(page.locator('#clip-tools')).toContainText('Spiked');
+  await expect(page.locator('.nav')).toContainText('Clippings');
+  await expect(page.locator('.nav')).not.toContainText('Clippings (');
+
+  // The miss still counts as worked until it is returned to the pile.
+  await page.goto('./#/train/back-rank');
+  await expect(page.locator('.lesson-tally__text')).toContainText('1 missed');
+  await page.locator('#return-misses').click();
+  await expect(page.locator('.lesson-tally__text')).toContainText('0 of 70');
+  await expect(page.locator('#return-misses')).toHaveCount(0);
+});
+
+test('the box score returns every miss to its pile', async ({ page }) => {
+  await page.goto('./#/train/skewers');
+  await expect(page.locator('.board--live')).toBeVisible();
+  await page.getByRole('button', { name: 'Show the solution' }).click();
+  await expect(page.locator('.puzzle__status')).toContainText('in your clippings', { timeout: 20_000 });
+
+  await page.goto('./#/progress');
+  const row = page.locator('.ledger__row', { hasText: 'Skewers and X-Rays' });
+  await expect(row).toHaveAttribute('data-tried', '1');
+  await expect(row.locator('.strip__missed')).toHaveCount(1);
+  await page.locator('#return-all').click();
+  await expect(row).toHaveAttribute('data-tried', '0');
+  await expect(page.locator('#return-all')).toHaveCount(0);
 });
 
 test('unknown pages explain themselves', async ({ page }) => {

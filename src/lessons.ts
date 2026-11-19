@@ -88,7 +88,7 @@ function inlinePuzzle({ fields }: Block, slug: string): HTMLElement {
       if (!puzzle) throw new Error(`Puzzle ${fields.id} not found`);
       mountPuzzle(holder, puzzle, {
         prompt: fields.prompt,
-        onResult: (solved) => recordResult(puzzle, slug, solved),
+        onResult: (_, outcome) => recordResult(puzzle, slug, outcome),
       });
     })
     .catch(() => {

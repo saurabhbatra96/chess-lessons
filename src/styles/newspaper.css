@@ -338,32 +338,105 @@ h3 a {
   font-style: italic;
 }
 
-.resume .cta {
-  margin: 0;
+.desk-table {
+  margin-top: 18px;
 }
 
-.desk-rows {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.desk-table tbody th {
+  font: 700 18px var(--display);
 }
 
-.desk-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 130px minmax(0, 2fr);
+.desk-table th:last-child,
+.desk-table td:last-child {
+  text-align: left;
+}
+
+.desk-table__puzzles {
+  width: 38%;
+}
+
+.desk-table__puzzles .tally-bar {
+  display: inline-flex;
+  width: calc(100% - 7em);
+  vertical-align: middle;
+}
+
+.desk-table__puzzles span:last-child {
+  display: inline-block;
+  width: 6.5em;
+}
+
+.weakest {
+  display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 2px 16px;
-  padding: 10px 0;
+  gap: 4px 10px;
+  margin: 0 0 4px;
+}
+
+.weakest .kicker {
+  margin: 0;
+}
+
+.toc-tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 20px;
+  margin: 14px 0;
+}
+
+.toc-tools .filters,
+.toc-tools .legend {
+  margin: 0;
+}
+
+.carry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 32px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+  font-size: 15px;
+}
+
+.carry .note {
+  margin-right: auto;
+}
+
+.carry #import-note:empty {
+  display: none;
+}
+
+/* Once the course is started, the contents doubles as the ledger: one lesson per line, with its strip. */
+.toc.toc--ledger ul {
+  columns: auto;
+}
+
+.toc--ledger li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 120px;
+  align-items: center;
+  gap: 4px 18px;
+  margin: 0;
+  padding: 6px 0;
   border-bottom: 1px solid var(--hairline);
 }
 
-.desk-row h3 {
-  font-size: 22px;
+.toc__nums {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  text-decoration: none;
 }
 
-.desk-row__done {
+.toc__rating {
+  margin-left: 8px;
   color: var(--ink-soft);
-  font-size: 16px;
+  font-size: 13px;
+  font-style: italic;
 }
 
 .filters {
@@ -905,6 +978,166 @@ h3 a {
   font-weight: 400;
 }
 
+/* Tallies: solid ink for clean solves, red engraver's hatching for misses, bare paper for the rest. */
+.tally-bar {
+  display: flex;
+  height: 14px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.tally-bar__clean {
+  background: var(--ink);
+}
+
+.tally-bar__missed,
+.strip__missed,
+.legend .strip__missed {
+  background: repeating-linear-gradient(135deg, var(--red) 0 1.5px, transparent 1.5px 3.5px);
+  box-shadow: inset 0 0 0 1px var(--red);
+}
+
+.tally-bar--lead {
+  height: 30px;
+  border-width: 2px;
+}
+
+.tally-bar--thin {
+  height: 10px;
+}
+
+.tally {
+  padding: 16px 0 6px;
+  border-top: 3px double var(--rule);
+}
+
+.tally__figures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 12px;
+}
+
+.tally__figures p {
+  margin: 0;
+  padding: 0 14px;
+  border-left: 1px solid var(--hairline);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tally__figures p:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.tally__figures strong {
+  display: block;
+  font: 900 clamp(38px, 7vw, 72px) / 1 var(--display);
+  letter-spacing: 0;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.tally__missed strong {
+  color: var(--red);
+}
+
+.tally__left strong {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--ink);
+}
+
+.tally__caption {
+  margin: 6px 0 14px;
+  color: var(--ink-soft);
+  font-style: italic;
+  text-align: right;
+}
+
+/* A strip is set like a line of type: one square per puzzle, two lines deep. */
+.strip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+
+.strip i,
+.legend i {
+  display: block;
+  aspect-ratio: 1;
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+.strip .strip__clean,
+.legend .strip__clean {
+  background: var(--ink);
+  box-shadow: none;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend i {
+  width: 12px;
+}
+
+.lesson-tally {
+  max-width: min(560px, max(320px, calc(100vh - 400px)));
+  margin: 26px auto 0;
+  padding-top: 14px;
+  border-top: 3px double var(--rule);
+}
+
+.lesson-tally:empty {
+  display: none;
+}
+
+.lesson-tally__text {
+  margin: 10px 0 8px;
+  font-size: 17px;
+}
+
+.lesson-tally__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+
+.button--small {
+  padding: 5px 12px;
+  font-size: 14px;
+}
+
+.clip-tools {
+  max-width: min(560px, max(320px, calc(100vh - 400px)));
+  margin: 14px auto 0;
+  text-align: center;
+}
+
+.clip-tools[hidden] {
+  display: none;
+}
+
+.clip-tools p {
+  margin: 0 0 8px;
+}
+
 .colophon-bar {
   padding: 12px 0;
   border-top: 1px solid var(--rule);
@@ -937,12 +1170,53 @@ h3 a {
     grid-column: 1 / -1;
   }
 
-  .desk-row {
-    grid-template-columns: minmax(0, 1fr) auto;
+  /* On a phone each section becomes a short stacked entry: name and lessons read, the bar, then what is next. */
+  .desk-table,
+  .desk-table tbody {
+    display: block;
   }
 
-  .desk-row span:last-child {
+  .desk-table thead {
+    display: none;
+  }
+
+  .desk-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .desk-table tr > * {
+    padding: 0;
+    border: 0;
+  }
+
+  .desk-table td:nth-child(2)::after {
+    content: ' read';
+  }
+
+  .desk-table__puzzles,
+  .desk-table td:last-child {
     grid-column: 1 / -1;
+    width: auto;
+    text-align: left;
+    font-size: 15px;
+  }
+
+  .desk-table__puzzles .tally-bar {
+    width: calc(100% - 6.5em);
+  }
+
+  .desk-table__puzzles span:last-child {
+    width: 5.5em;
+    text-align: right;
+  }
+
+  .desk-table td:last-child::before {
+    content: 'Next: ';
+    color: var(--ink-soft);
   }
 
   .desk-head {
@@ -970,5 +1244,28 @@ h3 a {
 
   .lesson-row__train {
     grid-column: 2;
+  }
+
+  .tally__figures p {
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .toc--ledger li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 10px;
+  }
+
+  .toc--ledger .strip {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+
+  .review-file th:nth-child(4),
+  .review-file td:nth-child(4),
+  .review-file th:nth-child(5),
+  .review-file td:nth-child(5) {
+    display: none;
   }
 }
