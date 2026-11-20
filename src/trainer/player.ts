@@ -16,15 +16,20 @@ export interface PlayerOptions {
 const REPLY_DELAY = 350;
 const SETUP_DELAY = 600;
 const colorName = (c: 'w' | 'b') => (c === 'w' ? 'White' : 'Black');
+const PIECE_NAMES: Record<string, string> = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
 
 /** Mounts an interactive puzzle in `host`. */
 export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOptions = {}): void {
-  const session = new PuzzleSession(puzzle);
+  let session = new PuzzleSession(puzzle);
   const board = new Board();
   let cleanRun = true;
   let reported = false;
   // True during animations and until the opponent's opening move has been shown.
   let busy = true;
+  // How much of the current move the hint has given away: 0 nothing, 1 the piece, 2 the move.
+  let hinted = 0;
+  // Bumped on every restart, so timers left over from an earlier run do nothing.
+  let run = 0;
 
   const figure = document.createElement('div');
   figure.className = 'puzzle';
@@ -41,14 +46,20 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
   typed.innerHTML = `<label>Or write your move <input name="move" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Nf5"></label>`;
   const actions = document.createElement('div');
   actions.className = 'puzzle__actions';
-  const reveal = document.createElement('button');
-  reveal.type = 'button';
-  reveal.textContent = 'Show the solution';
-  const next = document.createElement('button');
-  next.type = 'button';
-  next.textContent = options.nextLabel ?? 'Next puzzle';
+  const button = (label: string) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = label;
+    return b;
+  };
+  const hintButton = button('Hint');
+  const reveal = button('Show the solution');
+  const restart = button('Restart');
+  restart.title = 'Back to the starting position';
+  const next = button(options.nextLabel ?? 'Next puzzle');
+  next.className = 'puzzle__next';
   next.hidden = true;
-  actions.append(reveal, next);
+  actions.append(hintButton, reveal, restart, next);
 
   const meta = document.createElement('p');
   meta.className = 'puzzle__meta';
@@ -83,6 +94,7 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
     delete figure.dataset.side;
     hint.hidden = true;
     typed.hidden = true;
+    hintButton.hidden = true;
     reveal.hidden = true;
     next.hidden = !options.onNext;
     say(text, tone);
@@ -92,7 +104,27 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
 
   const unlock = () => {
     busy = false;
+    hinted = 0;
+    hintButton.textContent = 'Hint';
     board.setInteractive(session.game);
+  };
+
+  /** First press names the piece to move, the second shows the move itself. */
+  const giveHint = () => {
+    if (busy || session.done) return;
+    const uci = session.expected;
+    const move = session.game.moves({ verbose: true }).find((m) => m.lan === uci);
+    if (!move) return;
+    cleanRun = false;
+    hinted = Math.min(hinted + 1, 2);
+    if (hinted === 1) {
+      board.showArrows([{ from: move.from, to: move.from }]);
+      say(`Hint: move the ${PIECE_NAMES[move.piece]} on ${move.from}.`);
+      hintButton.textContent = 'Show the move';
+    } else {
+      board.showArrows([{ from: move.from, to: move.to }]);
+      say(`Hint: ${move.san}.`);
+    }
   };
 
   const play = async (uci: string) => {
@@ -103,18 +135,25 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
     if (result.status === 'wrong') {
       cleanRun = false;
       say('Not that move. Look again.', 'wrong');
-      unlock();
+      busy = false;
+      board.setInteractive(session.game);
       return;
     }
+    const thisRun = run;
     await board.animate(uci, session.fenBeforeReply);
     if (result.status === 'solved') {
+      const first = !reported;
       report(cleanRun ? 'clean' : 'stumble');
-      finish(cleanRun ? 'Solved at the first attempt.' : 'Solved, with a stumble.', cleanRun ? 'right' : '');
+      busy = false;
+      finish(
+        !first ? 'Solved.' : cleanRun ? 'Solved at the first attempt.' : 'Solved, with a stumble.',
+        cleanRun || !first ? 'right' : '',
+      );
       return;
     }
     say(`Correct. ${sideToMove}`, 'right');
     await pause();
-    if (!host.isConnected) return;
+    if (!host.isConnected || thisRun !== run) return;
     await board.animate(result.reply, session.fen);
     unlock();
   };
@@ -125,6 +164,7 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
     cleanRun = false;
     report('revealed');
     board.setInteractive(null);
+    hintButton.hidden = true;
     reveal.hidden = true;
     typed.hidden = true;
     say('The solution:');
@@ -138,10 +178,40 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
         await pause();
       }
     }
-    finish(options.revealedText ?? 'Filed under Review Misses. Due tomorrow.', '');
+    busy = false;
+    finish(`${options.revealedText ?? 'Filed under Review Misses. Due tomorrow.'} Restart to try it yourself.`, '');
+  };
+
+  /** Shows the opponent's opening move, then hands the board to the solver. */
+  const setUp = () => {
+    const thisRun = run;
+    window.setTimeout(async () => {
+      if (!host.isConnected || thisRun !== run) return;
+      await board.animate(session.setupMove, session.fen);
+      if (thisRun === run) unlock();
+    }, SETUP_DELAY);
+  };
+
+  /** Back to the starting position. A result already recorded stands. */
+  const startOver = () => {
+    if (busy) return;
+    run++;
+    busy = true;
+    session = new PuzzleSession(puzzle);
+    board.setInteractive(null);
+    board.setPosition(puzzle.fen);
+    figure.dataset.side = session.solver;
+    typed.hidden = false;
+    hintButton.hidden = false;
+    reveal.hidden = false;
+    next.hidden = !(reported && options.onNext);
+    say(reported ? `From the start. ${sideToMove}` : sideToMove);
+    setUp();
   };
 
   board.onMove = (uci) => void play(uci);
+  hintButton.addEventListener('click', giveHint);
+  restart.addEventListener('click', startOver);
   reveal.addEventListener('click', () => void showSolution());
   next.addEventListener('click', () => options.onNext?.());
   typed.addEventListener('submit', (e) => {
@@ -161,10 +231,5 @@ export function mountPuzzle(host: HTMLElement, puzzle: Puzzle, options: PlayerOp
   board.setOrientation(session.solver);
   board.setPosition(puzzle.fen);
   say(sideToMove);
-
-  window.setTimeout(async () => {
-    if (!host.isConnected) return;
-    await board.animate(session.setupMove, session.fen);
-    unlock();
-  }, SETUP_DELAY);
+  setUp();
 }

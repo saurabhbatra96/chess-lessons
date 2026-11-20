@@ -191,7 +191,7 @@ h3 a {
 }
 
 .button--plain,
-.puzzle__actions button:first-child {
+.puzzle__actions button:not(.puzzle__next) {
   background: transparent;
   color: var(--ink);
 }
@@ -836,6 +836,7 @@ h3 a {
 
 .puzzle__actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
 }
