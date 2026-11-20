@@ -100,6 +100,12 @@ export class Board {
     this.redraw();
   }
 
+  /** Draws marks over the current position, such as a hint. The next position clears them. */
+  showArrows(arrows: Arrow[]): void {
+    this.arrows = arrows;
+    this.drawMarks();
+  }
+
   /** Allows moves for the side to play in `game`, or locks the board when null. */
   setInteractive(game: Chess | null): void {
     this.game = game;
@@ -209,7 +215,22 @@ export class Board {
       const [x, y] = this.xy(target);
       this.marks.append(svgEl('circle', { cx: x + CELL / 2, cy: y + CELL / 2, r: 14, fill: '#8a1c14', opacity: 0.75 }));
     }
-    for (const { from, to } of this.arrows) this.marks.append(this.arrowLine(from, to, 'red'));
+    for (const { from, to } of this.arrows) {
+      const [x, y] = this.xy(from);
+      this.marks.append(
+        from === to
+          ? svgEl('circle', {
+              cx: x + CELL / 2,
+              cy: y + CELL / 2,
+              r: 43,
+              fill: 'none',
+              stroke: SHAPE_COLORS.red,
+              'stroke-width': 7,
+              opacity: 0.85,
+            })
+          : this.arrowLine(from, to, 'red'),
+      );
+    }
   }
 
   private arrowLine(from: string, to: string, color: ShapeColor): SVGLineElement {
